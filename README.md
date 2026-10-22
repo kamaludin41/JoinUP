@@ -19,7 +19,7 @@ Julkaistu sovellus: Lisätään, kun sovellus on julkaistu.
 - SQLite: tietojen tallentaminen, jos se on projektin lopullinen tietokanta.
 - Git ja GitHub: koodin versionhallinta ja ryhmätyö.
 - Microsoft Azure: sovelluksen julkaiseminen.
-Tietokoneella pitää olla asennettuna Node.js, npm, Git ja koodieditori.
+Tietokoneella pitää olla asennettuna Node.js, npm, Git.
 Avaa terminaali ja suorita:
 ```
 git clone https://github.com/kamaludin41/JoinUP.git
@@ -72,7 +72,6 @@ Kun sovellus on valmis, käyttäjä voi käyttää sitä seuraavasti:
 5. Ilmoittaudu tapahtumaan.
 6. Tarkastele omia ilmoittautumisiasi ja peruuta ilmoittautuminen tarvittaessa.
 7. Luo tai muokkaa tapahtumia sovelluksen tarjoamilla toiminnoilla.
-Käyttöohjetta täydennetään vastaamaan valmista käyttöliittymää ja sen todellisia toimintoja.
 Sovellus on tarkoitus julkaista Microsoft Azureen.
 Julkaisun valmistuttua tähän lisätään julkaistun sovelluksen osoite, frontendin ja backendin sijainti, tietokannan käyttöönotto sekä tarvittavat ympäristömuuttujat.
 Uusi versio julkaistaan projektissa sovitun GitHub- ja Azure-julkaisuprosessin mukaisesti. Julkaisun jälkeen sovelluksen toiminta testataan.
