@@ -1,122 +1,114 @@
 import { useState } from "react";
-import heroImg from "./assets/hero.png";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "./assets/vite.svg";
-import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0);
+import Navbar from "./components/Navbar";
+import SearchBar from "./components/SearchBar";
+import Footer from "./components/Footer";
+
+import Home from "./pages/Home";
+import Events from "./pages/Events";
+import CreateEvent from "./pages/CreateEvent";
+import EventDetails from "./pages/EventDetails";
+import Favorites from "./pages/Favorites";
+import Profile from "./pages/Profile";
+import Contact from "./pages/Contact";
+
+import "./index.css";
+
+export default function App() {
+  const [events, setEvents] = useState([
+    {
+      id: 1,
+      title: "Kesäfestarit 🎵",
+      category: "Musiikki",
+      description: "Musiikkia ja hyvää tunnelmaa!",
+      location: "Helsinki",
+      date: "2026-07-10",
+    },
+    {
+      id: 2,
+      title: "Pelailuilta 🎮",
+      category: "Pelit",
+      description: "Tule pelaamaan ja tutustumaan uusiin ihmisiin.",
+      location: "Espoo",
+      date: "2026-11-05",
+    },
+    {
+      id: 3,
+      title: "Kahvittelu ☕",
+      category: "Sosiaaliset tapahtumat",
+      description: "Rento tapaaminen uusien tuttavuuksien kanssa.",
+      location: "Vantaa",
+      date: "2026-11-12",
+    },
+  ]);
+
+  const [favorites, setFavorites] = useState([]);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState("home");
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
+  const filteredEvents = events.filter((event) =>
+    `${event.title} ${event.description} ${event.category} ${event.location}`
+      .toLowerCase()
+      .includes(search.toLowerCase()),
+  );
+
+  function toggleFavorite(event) {
+    setFavorites((current) =>
+      current.some((item) => item.id === event.id)
+        ? current.filter((item) => item.id !== event.id)
+        : [...current, event],
+    );
+  }
+
+  function createEvent(newEvent) {
+    setEvents((current) => [...current, { ...newEvent, id: Date.now() }]);
+    setPage("events");
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="app">
+      <Navbar page={page} setPage={setPage} />
 
-      <div className="ticks"></div>
+      <main>
+        {page === "home" && (
+          <Home
+            events={filteredEvents}
+            setPage={setPage}
+            setSelectedEvent={setSelectedEvent}
+            favorites={favorites}
+            toggleFavorite={toggleFavorite}
+          />
+        )}
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        {page === "events" && (
+          <>
+            <SearchBar search={search} setSearch={setSearch} />
+            <Events
+              events={filteredEvents}
+              setSelectedEvent={setSelectedEvent}
+              favorites={favorites}
+              toggleFavorite={toggleFavorite}
+            />
+          </>
+        )}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+        {page === "create" && (
+          <CreateEvent onCreate={createEvent} setPage={setPage} />
+        )}
+
+        {page === "details" && selectedEvent && (
+          <EventDetails event={selectedEvent} setPage={setPage} />
+        )}
+
+        {page === "favorites" && <Favorites favorites={favorites} />}
+
+        {page === "profile" && <Profile />}
+
+        {page === "contact" && <Contact />}
+      </main>
+
+      <Footer />
+    </div>
   );
 }
-
-export default App;
