@@ -1,0 +1,145 @@
+[
+  {
+    "id": 7,
+    "title": "Pelailuilta",
+    "description": "Tule pelaamaan ja tutustumaan uusiin ihmisiin!",
+    "location": "Espoo",
+    "category": "Pelit",
+    "date": "2026-11-05",
+    "time": "18:00",
+    "organizer_id": 1,
+    "max_participants": 30
+  },
+  {
+    "id": 8,
+    "title": "Opiskelijoiden tapaaminen",
+    "description": "Rento tapaaminen uusille opiskelijoille.",
+    "location": "Helsinki",
+    "category": "Opiskelu",
+    "date": "2026-11-12",
+    "time": "17:00",
+    "organizer_id": 1,
+    "max_participants": 25
+  },
+  {
+    "id": 90,
+    "title": "Liikuntapäivä",
+    "description": "Yhteistä liikuntaa ja hauskaa tekemistä.",
+    "location": "Vantaa",
+    "category": "Liikunta",
+    "date": "2026-11-15",
+    "time": "12:00",
+    "organizer_id": 1,
+    "max_participants": 40
+  },
+  {
+    "id": 11,
+    "title": "jalkapallo",
+    "description": "Yhteistä jalkapalloa ja hauskaa tekemistä.",
+    "location": "Helsinki",
+    "category": "jalkapallo",
+    "date": "2026-11-20",
+    "time": "18:00",
+    "organizer_id": 1,
+    "max_participants": 40
+  },
+  {
+    "id": 12,
+    "title": "Kahvitteluilta",
+    "description": "Tule nauttimaan kahvista ja tutustumaan uusiin ihmisiin!",
+    "location": "Espoo",
+    "category": "Kahvittelu",
+    "date": "2026-11-25",
+    "time": "17:00",
+    "organizer_id": 1,
+    "max_participants": 20
+  },
+  {
+    "id": 13,
+    "title": "Kokkausilta",
+    "description": "Yhteistä kokkausta ja hauskaa tekemistä.",
+    "location": "Helsinki",
+    "category": "Kokkaus",
+    "date": "2026-11-30",
+    "time": "18:00",
+    "organizer_id": 1,
+    "max_participants": 15
+  },
+  {
+    "id": 14,
+    "title": "Elokuvailta",
+    "description": "Tule katsomaan elokuvaa ja tutustumaan uusiin ihmisiin!",
+    "location": "Vantaa",
+    "category": "Elokuvat",
+    "date": "2026-12-05",
+    "time": "19:00",
+    "organizer_id": 1,
+    "max_participants": 30
+  },
+  {
+    "id": 15,
+    "title": "Kuntosalitreeni",
+    "description": "Yhteistä kuntosalitreeniä ja hauskaa tekemistä.",
+    "location": "Espoo",
+    "category": "Liikunta",
+    "date": "2026-12-10",
+    "time": "17:00",
+    "organizer_id": 1,
+    "max_participants": 20
+  },
+  {
+    "id": 16,
+    "title": "musikkia",
+    "description": "Tule nauttimaan musiikkia ja tutustumaan uusiin ihmisiin!",
+    "location": "Helsinki",
+    "category": "Musiikki",
+    "date": "2026-12-15",
+    "time": "18:00",
+    "organizer_id": 1,
+    "max_participants": 25
+  },
+  {
+    "id": 17,
+    "title": "tanssia",
+    "description": "Tule nauttimaan tanssia ja tutustumaan uusiin ihmisiin!",
+    "location": "Vantaa",
+    "category": "Tanssi",
+    "date": "2026-12-20",
+    "time": "17:00",
+    "organizer_id": 1,
+    "max_participants": 20
+  },
+  {
+    "id": 18,
+    "title": "jooga",
+    "description": "Tule nauttimaan joogaa ja tutustumaan uusiin ihmisiin!",
+    "location": "Espoo",
+    "category": "Jooga",
+    "date": "2026-12-25",
+    "time": "18:00",
+    "organizer_id": 1,
+    "max_participants": 15
+  },
+  {
+    "id": 19,
+    "title": "jalkapallo",
+    "description": "Tule nauttimaan jalkapalloa ja tutustumaan uusiin ihmisiin!",
+    "location": "Talihalli",
+    "category": "Jalkapallo",
+    "date": "2026-12-30",
+    "time": "17:00",
+    "organizer_id": 1,
+    "max_participants": 20
+  },
+  {
+    "id": 20,
+    "title": "jalkapallo",
+    "description": "Tule nauttimaan jalkapalloa ja tutustumaan uusiin ihmisiin!",
+    "location": "Talihalli",
+    "category": "Jalkapallo",
+    "date": "2027-01-05",
+    "time": "18:00",
+    "organizer_id": 1,
+    "max_participants": 25
+  }
+]

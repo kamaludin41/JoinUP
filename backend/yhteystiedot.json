@@ -1,8 +1,0 @@
-{
-  "host": "localhost",
-  "port": 3306,
-  "user": "joinup_app",
-  "password": "kamaal2141",
-  "database": "joinup",
-  "connectionLimit": 5
-}

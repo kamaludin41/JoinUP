@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "user_id": 1,
+    "event_id": 7,
+    "registered_at": "2026-10-29T12:20:36"
+  },
+  {
+    "id": 2,
+    "user_id": 1,
+    "event_id": 8,
+    "registered_at": "2026-10-29T20:19:15.673Z"
+  },
+  {
+    "id": 3,
+    "user_id": 1,
+    "event_id": 11,
+    "registered_at": "2026-10-29T20:20:31.705Z"
+  },
+  {
+    "id": 4,
+    "user_id": 1,
+    "event_id": 12,
+    "registered_at": "2026-10-29T20:22:16.092Z"
+  },
+  {
+    "id": 5,
+    "user_id": 1,
+    "event_id": 90,
+    "registered_at": "2026-10-29T20:34:45.301Z"
+  },
+  {
+    "id": 6,
+    "user_id": 1,
+    "event_id": 16,
+    "registered_at": "2026-10-29T20:58:29.329Z"
+  },
+  {
+    "id": 7,
+    "user_id": 1,
+    "event_id": 19,
+    "registered_at": "2026-10-30T08:02:17.931Z"
+  }
+]

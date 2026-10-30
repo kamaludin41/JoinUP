@@ -1,7 +1,8 @@
-
+sql
 CREATE DATABASE IF NOT EXISTS joinup;
 USE joinup;
 
+-- 1. Käyttäjät
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -14,7 +15,7 @@ CREATE TABLE IF NOT EXISTS events (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     description TEXT,
-    date DATETIME NOT NULL,
+    `date` DATETIME NOT NULL,
     place VARCHAR(200) NOT NULL,
     category VARCHAR(100) NOT NULL,
     organizer_id INT NOT NULL,
@@ -29,6 +30,8 @@ CREATE TABLE IF NOT EXISTS registrations (
     event_id INT NOT NULL,
     registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (user_id, event_id),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (event_id) REFERENCES events(id)
+        ON DELETE CASCADE
 );

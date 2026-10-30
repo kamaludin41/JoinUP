@@ -1,5 +1,4 @@
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
 import Navbar from "./components/Navbar";
 import SearchBar from "./components/SearchBar";
 import Footer from "./components/Footer";
@@ -14,45 +13,61 @@ import Contact from "./pages/Contact";
 
 import "./index.css";
 
-export default function App() {
-  const [events, setEvents] = useState([
-    {
-      id: 1,
-      title: "Kesäfestarit 🎵",
-      category: "Musiikki",
-      description: "Musiikkia ja hyvää tunnelmaa!",
-      location: "Helsinki",
-      date: "2026-07-10",
-    },
-    {
-      id: 2,
-      title: "Pelailuilta 🎮",
-      category: "Pelit",
-      description: "Tule pelaamaan ja tutustumaan uusiin ihmisiin.",
-      location: "Espoo",
-      date: "2026-11-05",
-    },
-    {
-      id: 3,
-      title: "Kahvittelu ☕",
-      category: "Sosiaaliset tapahtumat",
-      description: "Rento tapaaminen uusien tuttavuuksien kanssa.",
-      location: "Vantaa",
-      date: "2026-11-12",
-    },
-  ]);
+const API_URL = "http://localhost:3001/api/events";
+const REGISTRATION_API_URL = "http://localhost:3001/api/registrations";
+const USER_API_URL = "http://localhost:3001/api/users";
 
+export default function App() {
+  const [events, setEvents] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState("home");
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
+  // Hae tapahtumat backendistä
+  async function loadEvents() {
+    try {
+      setError("");
+
+      const response = await fetch(API_URL);
+
+      if (!response.ok) {
+        throw new Error("Tapahtumien hakeminen epäonnistui.");
+      }
+
+      const data = await response.json();
+
+      if (!Array.isArray(data)) {
+        throw new Error("Backend palautti virheelliset tapahtumatiedot.");
+      }
+
+      setEvents(data);
+    } catch (err) {
+      console.error("Tapahtumien haku epäonnistui:", err);
+      setError(
+        "Tapahtumia ei voitu hakea. Tarkista, että backend toimii portissa 3001.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadEvents();
+  }, []);
+
+  // Hae tapahtumia hakusanalla
   const filteredEvents = events.filter((event) =>
-    `${event.title} ${event.description} ${event.category} ${event.location}`
+    `${event.title || ""} ${event.description || ""} ${
+      event.category || ""
+    } ${event.location || ""}`
       .toLowerCase()
       .includes(search.toLowerCase()),
   );
 
+  // Lisää tai poista suosikki
   function toggleFavorite(event) {
     setFavorites((current) =>
       current.some((item) => item.id === event.id)
@@ -61,51 +76,97 @@ export default function App() {
     );
   }
 
-  function createEvent(newEvent) {
-    setEvents((current) => [...current, { ...newEvent, id: Date.now() }]);
-    setPage("events");
+  // Tallenna uusi tapahtuma backendin kautta
+  async function createEvent(newEvent) {
+    try {
+      setError("");
+
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newEvent),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Tapahtuman tallentaminen epäonnistui.");
+      }
+
+      await loadEvents();
+      setPage("events");
+    } catch (err) {
+      console.error("Tapahtuman luominen epäonnistui:", err);
+      setError(err.message || "Tapahtuman tallentaminen epäonnistui.");
+    }
   }
 
   return (
     <div className="app">
       <Navbar page={page} setPage={setPage} />
 
-      <main>
-        {page === "home" && (
-          <Home
-            events={filteredEvents}
-            setPage={setPage}
-            setSelectedEvent={setSelectedEvent}
-            favorites={favorites}
-            toggleFavorite={toggleFavorite}
-          />
-        )}
+      {error && (
+        <div className="container section" role="alert">
+          <p>{error}</p>
+          <button type="button" onClick={loadEvents}>
+            Yritä uudelleen
+          </button>
+        </div>
+      )}
 
-        {page === "events" && (
+      <main>
+        {loading ? (
+          <div className="container section">
+            <p>Ladataan tapahtumia...</p>
+          </div>
+        ) : (
           <>
-            <SearchBar search={search} setSearch={setSearch} />
-            <Events
-              events={filteredEvents}
-              setSelectedEvent={setSelectedEvent}
-              favorites={favorites}
-              toggleFavorite={toggleFavorite}
-            />
+            {page === "home" && (
+              <Home
+                events={filteredEvents}
+                setPage={setPage}
+                setSelectedEvent={setSelectedEvent}
+                favorites={favorites}
+                toggleFavorite={toggleFavorite}
+              />
+            )}
+
+            {page === "events" && (
+              <>
+                <SearchBar search={search} setSearch={setSearch} />
+                <Events
+                  events={filteredEvents}
+                  onSelect={(event) => {
+                    setSelectedEvent(event);
+                    setPage("details");
+                  }}
+                  setSelectedEvent={setSelectedEvent}
+                  favorites={favorites}
+                  toggleFavorite={toggleFavorite}
+                />
+              </>
+            )}
+
+            {page === "create" && (
+              <CreateEvent onCreate={createEvent} setPage={setPage} />
+            )}
+
+            {page === "details" && selectedEvent && (
+              <EventDetails
+                event={selectedEvent}
+                onBack={() => setPage("events")}
+              />
+            )}
+
+            {page === "favorites" && <Favorites favorites={favorites} />}
+
+            {page === "profile" && <Profile />}
+
+            {page === "contact" && <Contact />}
           </>
         )}
-
-        {page === "create" && (
-          <CreateEvent onCreate={createEvent} setPage={setPage} />
-        )}
-
-        {page === "details" && selectedEvent && (
-          <EventDetails event={selectedEvent} setPage={setPage} />
-        )}
-
-        {page === "favorites" && <Favorites favorites={favorites} />}
-
-        {page === "profile" && <Profile />}
-
-        {page === "contact" && <Contact />}
       </main>
 
       <Footer />

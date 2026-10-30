@@ -1,19 +1,16 @@
 import { useState } from "react";
 import EventCard from "../components/EventCard";
 
-function Events({ events, onSelect }) {
+function Events({ events = [], onSelect }) {
   const [category, setCategory] = useState("Kaikki");
 
+  // Kategoriat tulevat backendin tapahtumista
   const categories = [
     "Kaikki",
-    "Koulutus",
-    "Teknologia",
-    "Urheilu",
-    "Viihde",
-    "Ura",
-    "Vapaa-aika",
+    ...new Set(events.map((event) => event.category).filter(Boolean)),
   ];
 
+  // Suodatetaan backendistä saadut tapahtumat
   const filteredEvents =
     category === "Kaikki"
       ? events
@@ -28,6 +25,7 @@ function Events({ events, onSelect }) {
         {categories.map((item) => (
           <button
             key={item}
+            type="button"
             className={category === item ? "active" : ""}
             onClick={() => setCategory(item)}
           >
