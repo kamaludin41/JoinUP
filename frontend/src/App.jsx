@@ -154,10 +154,13 @@ export default function App() {
             )}
 
             {page === "details" && selectedEvent && (
-              <EventDetails
-                event={selectedEvent}
-                onBack={() => setPage("events")}
-              />
+             <EventDetails
+                  event={selectedEvent}
+                   onBack={async () => {
+                    await loadEvents();
+                     setPage("events");
+                    }}
+                  />
             )}
 
             {page === "favorites" && <Favorites favorites={favorites} />}

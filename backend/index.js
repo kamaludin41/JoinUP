@@ -1,9 +1,14 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+import express from "express";
+import cors from "cors";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const express = require("express");
-const cors = require("cors");
-const fs = require("node:fs/promises");
-const path = require("node:path");
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
@@ -43,30 +48,38 @@ async function ensureDataFiles() {
       await fs.writeFile(
         filePath(filename),
         JSON.stringify(data, null, 2),
-        "utf8",
+        "utf8"
       );
     }
   }
 }
 
-app.get("/api/users", (req, res) => {
-  const fs = require("fs");
-  const path = require("path");
+async function readData(filename) {
+  const content = await fs.readFile(filePath(filename), "utf8");
+  return JSON.parse(content);
+}
 
-  const usersFile = path.join(__dirname, "data", "users.json");
+async function writeData(filename, data) {
+  await fs.writeFile(
+    filePath(filename),
+    JSON.stringify(data, null, 2),
+    "utf8"
+  );
+}
 
+function nextId(items) {
+  return (
+    items.reduce((max, item) => Math.max(max, Number(item.id) || 0), 0) + 1
+  );
+}
+
+// Hae kaikki käyttäjät
+app.get("/api/users", async (req, res) => {
   try {
-    if (!fs.existsSync(usersFile)) {
-      return res.status(404).json({
-        error: "Tiedostoa backend/data/users.json ei löydy.",
-      });
-    }
-
-    const users = JSON.parse(fs.readFileSync(usersFile, "utf8"));
+    const users = await readData("users.json");
     res.json(users);
   } catch (error) {
     console.error("Käyttäjien lukeminen epäonnistui:", error);
-
     res.status(500).json({
       error: "Käyttäjien lukeminen epäonnistui.",
     });
@@ -86,21 +99,6 @@ app.get("/api/registrations", async (req, res) => {
   }
 });
 
-async function readData(filename) {
-  const content = await fs.readFile(filePath(filename), "utf8");
-  return JSON.parse(content);
-}
-
-async function writeData(filename, data) {
-  await fs.writeFile(filePath(filename), JSON.stringify(data, null, 2), "utf8");
-}
-
-function nextId(items) {
-  return (
-    items.reduce((max, item) => Math.max(max, Number(item.id) || 0), 0) + 1
-  );
-}
-
 // Hae kaikki tapahtumat
 app.get("/api/events", async (req, res) => {
   try {
@@ -113,12 +111,12 @@ app.get("/api/events", async (req, res) => {
           ...event,
           id: Number(event.id),
           participants: registrations.filter(
-            (r) => Number(r.event_id) === Number(event.id),
+            (r) => Number(r.event_id) === Number(event.id)
           ).length,
         }))
         .sort((a, b) =>
-          `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`),
-        ),
+          `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`)
+        )
     );
   } catch (error) {
     console.error(error);
@@ -241,11 +239,12 @@ app.delete("/api/events/:id", async (req, res) => {
     }
 
     const remainingEvents = events.filter(
-      (event) => Number(event.id) !== eventId,
+      (event) => Number(event.id) !== eventId
     );
+
     const registrations = await readData("registrations.json");
     const remainingRegistrations = registrations.filter(
-      (r) => Number(r.event_id) !== eventId,
+      (r) => Number(r.event_id) !== eventId
     );
 
     await writeData("events.json", remainingEvents);
@@ -280,14 +279,14 @@ app.post("/api/events/:id/register", async (req, res) => {
 
     if (
       registrations.some(
-        (r) => Number(r.user_id) === userId && Number(r.event_id) === eventId,
+        (r) => Number(r.user_id) === userId && Number(r.event_id) === eventId
       )
     ) {
       return res.status(409).json({ error: "Olet jo ilmoittautunut" });
     }
 
     const participantCount = registrations.filter(
-      (r) => Number(r.event_id) === eventId,
+      (r) => Number(r.event_id) === eventId
     ).length;
 
     if (

@@ -232,3 +232,14 @@ button:hover {
   background: #f0edff;
   border-radius: 14px;
 }
+
+.event-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.event-actions button {
+  padding: 12px 20px;
+}

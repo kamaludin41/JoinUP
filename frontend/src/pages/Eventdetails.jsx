@@ -7,8 +7,17 @@ function EventDetails({ event, onBack }) {
   const [checkingRegistration, setCheckingRegistration] = useState(true);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [editing, setEditing] = useState(false);
 
-  // Tarkista, onko käyttäjä jo ilmoittautunut tapahtumaan
+  const [form, setForm] = useState({
+    title: event?.title || "",
+    description: event?.description || "",
+    location: event?.location || "",
+    category: event?.category || "Viihde",
+    date: event?.date || "",
+    time: event?.time || "",
+  });
+
   useEffect(() => {
     let cancelled = false;
 
@@ -19,39 +28,23 @@ function EventDetails({ event, onBack }) {
         return;
       }
 
-      setCheckingRegistration(true);
-      setMessage("");
-
       try {
         const response = await fetch(`${API_URL}/registrations`);
-
-        if (!response.ok) {
-          throw new Error("Ilmoittautumisten haku epäonnistui.");
-        }
+        if (!response.ok) throw new Error("Ilmoittautumisten haku epäonnistui.");
 
         const registrations = await response.json();
 
         const alreadyRegistered = registrations.some(
           (registration) =>
             Number(registration.user_id) === 1 &&
-            Number(registration.event_id) === Number(event.id),
+            Number(registration.event_id) === Number(event.id)
         );
 
-        if (!cancelled) {
-          setIsRegistered(alreadyRegistered);
-        }
+        if (!cancelled) setIsRegistered(alreadyRegistered);
       } catch (error) {
-        console.error("Ilmoittautumisen tarkistus epäonnistui:", error);
-
-        if (!cancelled) {
-          setMessage(
-            "Ilmoittautumisen tilaa ei voitu tarkistaa. Yritä päivittää sivu.",
-          );
-        }
+        if (!cancelled) setMessage(error.message);
       } finally {
-        if (!cancelled) {
-          setCheckingRegistration(false);
-        }
+        if (!cancelled) setCheckingRegistration(false);
       }
     }
 
@@ -62,31 +55,30 @@ function EventDetails({ event, onBack }) {
     };
   }, [event?.id]);
 
-  // Ilmoittaudu tapahtumaan
+  function handleChange(e) {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  }
+
   async function handleRegister() {
-    if (!event?.id || isRegistered || loading || checkingRegistration) {
-      return;
-    }
+    if (!event?.id || isRegistered || loading || checkingRegistration) return;
 
     setLoading(true);
     setMessage("");
 
     try {
-      const response = await fetch(`${API_URL}/events/${event.id}/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ user_id: 1 }),
-      });
+      const response = await fetch(
+        `${API_URL}/events/${event.id}/register`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: 1 }),
+        }
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
-        if (response.status === 409) {
-          setIsRegistered(true);
-        }
-
+        if (response.status === 409) setIsRegistered(true);
         throw new Error(data.error || "Ilmoittautuminen epäonnistui.");
       }
 
@@ -99,62 +91,154 @@ function EventDetails({ event, onBack }) {
     }
   }
 
+  async function handleSave() {
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const response = await fetch(`${API_URL}/events/${event.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Tapahtuman muokkaus epäonnistui.");
+      }
+
+      setMessage("Tapahtuma päivitettiin!");
+      setEditing(false);
+      await onBack();
+    } catch (error) {
+      setMessage(error.message || "Palvelimeen ei saatu yhteyttä.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!window.confirm("Haluatko varmasti poistaa tapahtuman?")) return;
+
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const response = await fetch(`${API_URL}/events/${event.id}`, {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Tapahtuman poistaminen epäonnistui.");
+      }
+
+      await onBack();
+    } catch (error) {
+      setMessage(error.message || "Palvelimeen ei saatu yhteyttä.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   if (!event) {
     return (
       <main className="container section">
         <p>Tapahtumaa ei löytynyt.</p>
-
-        <button type="button" onClick={onBack}>
-          Takaisin tapahtumiin
-        </button>
+        <button type="button" onClick={onBack}>Takaisin tapahtumiin</button>
       </main>
     );
   }
 
   return (
     <main className="container section">
-      <button type="button" onClick={onBack}>
-        ← Takaisin
-      </button>
+      <button type="button" onClick={onBack}>← Takaisin</button>
 
       <div className="details-card">
-        <div className="event-emoji">{event.emoji || "🎉"}</div>
+        {editing ? (
+          <>
+            <h1>Muokkaa tapahtumaa</h1>
 
-        <span className="category">{event.category}</span>
+            <form
+              className="event-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSave();
+              }}
+            >
+              <label>Tapahtuman nimi</label>
+              <input name="title" value={form.title} onChange={handleChange} required />
 
-        <h1>{event.title}</h1>
+              <label>Kuvaus</label>
+              <textarea name="description" value={form.description} onChange={handleChange} />
 
-        <p>{event.description}</p>
-        <p>📍 Paikka: {event.location}</p>
-        <p>📅 Päivämäärä: {event.date}</p>
-        <p>🕒 Aika: {event.time}</p>
+              <label>Paikka</label>
+              <input name="location" value={form.location} onChange={handleChange} required />
 
-        {event.max_participants != null && (
-          <p>
-            👥 Osallistujia: {event.participants || 0} /{" "}
-            {event.max_participants}
-          </p>
+              <label>Kategoria</label>
+              <input name="category" value={form.category} onChange={handleChange} required />
+
+              <label>Päivämäärä</label>
+              <input type="date" name="date" value={form.date} onChange={handleChange} required />
+
+              <label>Aika</label>
+              <input type="time" name="time" value={form.time} onChange={handleChange} required />
+
+              <button type="submit" disabled={loading}>
+                {loading ? "Tallennetaan..." : "Tallenna muutokset"}
+              </button>
+
+              <button type="button" onClick={() => setEditing(false)}>
+                Peruuta
+              </button>
+            </form>
+          </>
+        ) : (
+          <>
+            <div className="event-emoji">{event.emoji || "🎉"}</div>
+            <span className="category">{event.category}</span>
+            <h1>{event.title}</h1>
+            <p>{event.description}</p>
+            <p>📍 Paikka: {event.location}</p>
+            <p>📅 Päivämäärä: {event.date}</p>
+            <p>🕒 Aika: {event.time}</p>
+
+            {event.max_participants != null && (
+              <p>
+                👥 Osallistujia: {event.participants || 0} / {event.max_participants}
+              </p>
+            )}
+
+            <button
+              type="button"
+              onClick={handleRegister}
+              disabled={loading || checkingRegistration || isRegistered}
+            >
+              {checkingRegistration
+                ? "Tarkistetaan ilmoittautumista..."
+                : isRegistered
+                  ? "Olet jo ilmoittautunut ✓"
+                  : loading
+                    ? "Ilmoittaudutaan..."
+                    : "Ilmoittaudu tapahtumaan"}
+            </button>
+
+            <hr />
+            <div className="event-actions">
+              <button type="button" onClick={() => setEditing(true)}>
+                Muokkaa tapahtumaa
+              </button>
+
+              <button type="button" onClick={handleDelete} disabled={loading}>
+                Poista tapahtuma
+              </button>
+            </div>
+          </>
         )}
 
-        <button
-          type="button"
-          onClick={handleRegister}
-          disabled={loading || checkingRegistration || isRegistered}
-        >
-          {checkingRegistration
-            ? "Tarkistetaan ilmoittautumista..."
-            : isRegistered
-              ? "Olet jo ilmoittautunut ✓"
-              : loading
-                ? "Ilmoittaudutaan..."
-                : "Ilmoittaudu tapahtumaan"}
-        </button>
-
-        {message && (
-          <p role="status" aria-live="polite">
-            {message}
-          </p>
-        )}
+        {message && <p role="status">{message}</p>}
       </div>
     </main>
   );

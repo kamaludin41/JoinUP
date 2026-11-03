@@ -40,5 +40,23 @@
     "user_id": 1,
     "event_id": 19,
     "registered_at": "2026-10-30T08:02:17.931Z"
+  },
+  {
+    "id": 8,
+    "user_id": 1,
+    "event_id": 20,
+    "registered_at": "2026-10-30T10:04:16.781Z"
+  },
+  {
+    "id": 9,
+    "user_id": 1,
+    "event_id": 15,
+    "registered_at": "2026-10-30T10:05:05.427Z"
+  },
+  {
+    "id": 10,
+    "user_id": 1,
+    "event_id": 18,
+    "registered_at": "2026-10-30T10:05:25.169Z"
   }
 ]

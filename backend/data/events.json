@@ -141,5 +141,16 @@
     "time": "18:00",
     "organizer_id": 1,
     "max_participants": 25
+  },
+  {
+    "id": 93,
+    "title": "lautapeli",
+    "description": "Pelataan lautapelejä yhdessä ja tutustutaan uusiin ihmisiin.",
+    "location": "Business College Helsinki",
+    "category": "Viihde",
+    "date": "2026-10-31",
+    "time": "20:00",
+    "organizer_id": 1,
+    "max_participants": null
   }
 ]

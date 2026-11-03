@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 function CreateEvent({ onCreate, setPage }) {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("Viihde");
@@ -7,12 +6,16 @@ function CreateEvent({ onCreate, setPage }) {
   const [location, setLocation] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e) {
-    e.preventDefault();
+ async function handleSubmit(e) {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    onCreate({
-      id: Date.now(),
+  try {
+    await onCreate({
       title,
       category,
       description,
@@ -21,11 +24,14 @@ function CreateEvent({ onCreate, setPage }) {
       time,
       emoji: "🎉",
     });
-
     setPage("events");
+  } catch (err) {
+    setError(err.message || "Could not create event.");
+  } finally {
+    setLoading(false);
   }
-
-  return (
+ }
+ return (
     <main className="container section">
       <h1>Luo uusi tapahtuma</h1>
       <p>Kerro muille, mitä olet järjestämässä.</p>
@@ -40,7 +46,10 @@ function CreateEvent({ onCreate, setPage }) {
         />
 
         <label>Kategoria</label>
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
           <option>Viihde</option>
           <option>Koulutus</option>
           <option>Teknologia</option>
@@ -81,7 +90,11 @@ function CreateEvent({ onCreate, setPage }) {
           required
         />
 
-        <button type="submit">Luo tapahtuma</button>
+        {error && <p className="error">{error}</p>}
+
+        <button type="submit" disabled={loading}>
+          {loading ? "Tallennetaan..." : "Luo tapahtuma"}
+        </button>
       </form>
     </main>
   );
