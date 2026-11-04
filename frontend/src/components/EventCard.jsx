@@ -1,7 +1,9 @@
+import { getEventEmoji } from "../utils/eventEmoji";
+
 function EventCard({ event, onSelect }) {
   return (
     <article className="event-card">
-      <div className="event-emoji">{event.emoji || "🎉"}</div>
+      <div className="event-emoji">{getEventEmoji(event)}</div>
       <div className="event-info">
         <span className="category">{event.category}</span>
         <h3>{event.title}</h3>

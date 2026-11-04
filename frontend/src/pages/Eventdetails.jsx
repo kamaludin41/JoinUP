@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { getEventEmoji } from "../utils/eventEmoji";
 
 const API_URL = "http://localhost:3001/api";
 const USER_ID = 1;
@@ -520,7 +521,7 @@ function EventDetails({ event, onBack }) {
           <div className="details-card event-view-card">
 
             <div className="event-emoji">
-              {event.emoji || "🎉"}
+              {getEventEmoji(event)}
             </div>
 
             <span className="category">

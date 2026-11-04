@@ -40,7 +40,6 @@ function CreateEvent({ onCreate, setPage }) {
         time,
         endDate,
         endTime,
-        emoji: "🎉",
       });
 
       setPage("events");
