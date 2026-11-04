@@ -152,5 +152,16 @@
     "time": "22:22",
     "organizer_id": 1,
     "max_participants": null
+  },
+  {
+    "id": 96,
+    "title": "car meet",
+    "description": "all car bmw on top",
+    "location": "helsinki",
+    "category": "Vapaa-aika",
+    "date": "2026-11-05",
+    "time": "12:00",
+    "organizer_id": 1,
+    "max_participants": null
   }
 ]

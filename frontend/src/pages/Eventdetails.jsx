@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 const API_URL = "http://localhost:3001/api";
 const USER_ID = 1;
 
-// Prepare event data for editing
+
 function getInitialForm(event) {
   return {
     title: event?.title || "",
@@ -333,9 +333,6 @@ function EventDetails({ event, onBack }) {
 
         {editing ? (
 
-          /* =================================
-             EDIT EVENT FORM
-             ================================= */
 
           <div className="event-edit-wrapper">
 
@@ -512,10 +509,6 @@ function EventDetails({ event, onBack }) {
           </div>
 
         ) : (
-
-          /* =================================
-             EVENT DETAILS VIEW
-             ================================= */
 
           <div className="details-card event-view-card">
 

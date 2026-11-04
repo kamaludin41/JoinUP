@@ -6,7 +6,7 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Events from "./pages/Events";
 import CreateEvent from "./pages/CreateEvent";
-import EventDetails from "./pages/EventDetails";
+import EventDetails from "./pages/Eventdetails";
 import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
 import Contact from "./pages/Contact";
@@ -136,7 +136,6 @@ export default function App() {
 
             {page === "events" && (
               <>
-                <SearchBar search={search} setSearch={setSearch} />
                 <Events
                   events={filteredEvents}
                   onSelect={(event) => {

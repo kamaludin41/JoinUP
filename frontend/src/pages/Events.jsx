@@ -1,25 +1,42 @@
+
 import { useState } from "react";
 import EventCard from "../components/EventCard";
+import SearchBar from "../components/SearchBar";
 
 function Events({ events = [], onSelect }) {
   const [category, setCategory] = useState("Kaikki");
+  const [search, setSearch] = useState("");
 
-  // Kategoriat tulevat backendin tapahtumista
   const categories = [
     "Kaikki",
     ...new Set(events.map((event) => event.category).filter(Boolean)),
   ];
 
-  // Suodatetaan backendistä saadut tapahtumat
-  const filteredEvents =
-    category === "Kaikki"
-      ? events
-      : events.filter((event) => event.category === category);
+  const filteredEvents = events.filter((event) => {
+    const matchesCategory =
+      category === "Kaikki" || event.category === category;
+
+    const searchText = search.toLowerCase().trim();
+
+    const matchesSearch =
+      (event.title || "").toLowerCase().includes(searchText) ||
+      (event.description || "").toLowerCase().includes(searchText) ||
+      (event.location || "").toLowerCase().includes(searchText);
+
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <main className="container section">
-      <h1>Tapahtumat</h1>
-      <p>Löydä kiinnostavaa tekemistä.</p>
+
+      <div className="events-header">
+        <div className="events-heading">
+          <h1>Tapahtumat</h1>
+          <p>Löydä kiinnostavaa tekemistä.</p>
+        </div>
+
+        <SearchBar search={search} setSearch={setSearch} />
+      </div>
 
       <div className="filters">
         {categories.map((item) => (
@@ -36,12 +53,16 @@ function Events({ events = [], onSelect }) {
 
       <div className="event-grid">
         {filteredEvents.map((event) => (
-          <EventCard key={event.id} event={event} onSelect={onSelect} />
+          <EventCard
+            key={event.id}
+            event={event}
+            onSelect={onSelect}
+          />
         ))}
       </div>
 
       {filteredEvents.length === 0 && (
-        <p>Tässä kategoriassa ei ole vielä tapahtumia.</p>
+        <p>Hakua vastaavia tapahtumia ei löytynyt.</p>
       )}
     </main>
   );
