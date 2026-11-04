@@ -12,6 +12,7 @@ import Profile from "./pages/Profile";
 import Contact from "./pages/Contact";
 
 import "./index.css";
+import "./App.css";
 
 const API_URL = "http://localhost:3001/api/events";
 const REGISTRATION_API_URL = "http://localhost:3001/api/registrations";

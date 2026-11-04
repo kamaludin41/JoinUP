@@ -1,11 +1,5 @@
 [
   {
-    "id": 1,
-    "user_id": 1,
-    "event_id": 7,
-    "registered_at": "2026-10-29T12:20:36"
-  },
-  {
     "id": 2,
     "user_id": 1,
     "event_id": 8,
@@ -58,5 +52,17 @@
     "user_id": 1,
     "event_id": 18,
     "registered_at": "2026-10-30T10:05:25.169Z"
+  },
+  {
+    "id": 13,
+    "user_id": 1,
+    "event_id": 95,
+    "registered_at": "2026-11-03T10:11:56.859Z"
+  },
+  {
+    "id": 14,
+    "user_id": 1,
+    "event_id": 7,
+    "registered_at": "2026-11-04T07:27:10.182Z"
   }
 ]

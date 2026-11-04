@@ -5,6 +5,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -313,8 +314,7 @@ app.post("/api/events/:id/register", async (req, res) => {
     res.status(500).json({ error: "Ilmoittautuminen epäonnistui" });
   }
 });
-
-async function startServer() {
+  async function startServer() {
   await ensureDataFiles();
 
   app.listen(PORT, () => {
@@ -322,6 +322,80 @@ async function startServer() {
     console.log("Tallennus: backend/data/*.json (ei MariaDB:tä)");
   });
 }
+
+startServer().catch((error) => {
+  console.error("Palvelimen käynnistys epäonnistui:", error);
+  process.exit(1);
+});
+
+app.delete("/api/events/:id/register", async (req, res) => {
+  try {
+    const eventId = Number(req.params.id);
+    const userId = Number(req.body?.user_id);
+
+    if (!Number.isInteger(eventId) || eventId <= 0 ||
+        !Number.isInteger(userId) || userId <= 0) {
+      return res.status(400).json({
+        error: "Virheellinen tapahtuma tai käyttäjä.",
+      });
+    }
+
+    const events = await readData("events.json");
+
+    const eventExists = events.some(
+      (event) => Number(event.id) === eventId
+    );
+
+    if (!eventExists) {
+      return res.status(404).json({
+        error: "Tapahtumaa ei löydy.",
+      });
+    }
+
+    const registrations = await readData("registrations.json");
+
+    const registrationExists = registrations.some(
+      (registration) =>
+        Number(registration.event_id) === eventId &&
+        Number(registration.user_id) === userId
+    );
+
+    if (!registrationExists) {
+      return res.status(404).json({
+        error: "Ilmoittautumista ei löytynyt.",
+      });
+    }
+
+    const updatedRegistrations = registrations.filter(
+      (registration) =>
+        !(
+          Number(registration.event_id) === eventId &&
+          Number(registration.user_id) === userId
+        )
+    );
+
+    await writeData("registrations.json", updatedRegistrations);
+
+    return res.json({
+      ok: true,
+      message: "Ilmoittautuminen peruttu onnistuneesti.",
+    });
+  } catch (error) {
+    console.error("Ilmoittautumisen peruminen epäonnistui:", error);
+
+    return res.status(500).json({
+      error: "Ilmoittautumisen peruminen epäonnistui.",
+    });
+  }
+});
+
+  await ensureDataFiles();
+
+  app.listen(PORT, () => {
+    console.log(`Palvelin käynnissä portissa ${PORT}`);
+    console.log("Tallennus: backend/data/*.json (ei MariaDB:tä)");
+  });
+
 
 startServer().catch((error) => {
   console.error("Palvelimen käynnistys epäonnistui:", error);

@@ -143,13 +143,13 @@
     "max_participants": 25
   },
   {
-    "id": 93,
-    "title": "lautapeli",
-    "description": "Pelataan lautapelejä yhdessä ja tutustutaan uusiin ihmisiin.",
-    "location": "Business College Helsinki",
-    "category": "Viihde",
-    "date": "2026-10-31",
-    "time": "20:00",
+    "id": 95,
+    "title": "car race",
+    "description": "car racer with bmw",
+    "location": "kamla koti",
+    "category": "Vapaa-aika",
+    "date": "2222-02-22",
+    "time": "22:22",
     "organizer_id": 1,
     "max_participants": null
   }
