@@ -54,15 +54,9 @@
     "registered_at": "2026-10-30T10:05:25.169Z"
   },
   {
-    "id": 13,
-    "user_id": 1,
-    "event_id": 95,
-    "registered_at": "2026-11-03T10:11:56.859Z"
-  },
-  {
-    "id": 14,
+    "id": 11,
     "user_id": 1,
     "event_id": 96,
-    "registered_at": "2026-11-04T07:56:14.859Z"
+    "registered_at": "2026-11-04T12:33:41.316Z"
   }
 ]

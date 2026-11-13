@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from "react";
+import { getEventEmoji } from "../utils/eventEmoji";
 
 const API_URL = "http://localhost:3001/api";
 const USER_ID = 1;
-
 
 function getInitialForm(event) {
   return {
@@ -18,24 +17,22 @@ function getInitialForm(event) {
 
 function EventDetails({ event, onBack }) {
   const [isRegistered, setIsRegistered] = useState(false);
-  const [checkingRegistration, setCheckingRegistration] =
-    useState(true);
+  const [checkingRegistration, setCheckingRegistration] = useState(true);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [form, setForm] = useState(() => getInitialForm(event));
 
-  const [form, setForm] = useState(() =>
-    getInitialForm(event)
-  );
-
-  // Update form when selected event changes
+  // Reset when event changes
   useEffect(() => {
     setForm(getInitialForm(event));
     setEditing(false);
     setMessage("");
+    setShowCancelModal(false);
   }, [event?.id]);
 
-  // Check if user is registered
+  // Check registration
   useEffect(() => {
     let cancelled = false;
 
@@ -49,14 +46,10 @@ function EventDetails({ event, onBack }) {
       }
 
       try {
-        const response = await fetch(
-          `${API_URL}/registrations`
-        );
+        const response = await fetch(`${API_URL}/registrations`);
 
         if (!response.ok) {
-          throw new Error(
-            "Ilmoittautumisten haku epäonnistui."
-          );
+          throw new Error("Ilmoittautumisten haku epäonnistui.");
         }
 
         const registrations = await response.json();
@@ -64,8 +57,7 @@ function EventDetails({ event, onBack }) {
         const alreadyRegistered = registrations.some(
           (registration) =>
             Number(registration.user_id) === USER_ID &&
-            Number(registration.event_id) ===
-              Number(event.id)
+            Number(registration.event_id) === Number(event.id)
         );
 
         if (!cancelled) {
@@ -89,24 +81,18 @@ function EventDetails({ event, onBack }) {
     };
   }, [event?.id]);
 
-  // Update form fields
+  // Form changes
   function handleChange(e) {
     const { name, value } = e.target;
-
     setForm((previous) => ({
       ...previous,
       [name]: value,
     }));
   }
 
-  // REGISTER FOR EVENT
+  // Register
   async function handleRegister() {
-    if (
-      !event?.id ||
-      isRegistered ||
-      loading ||
-      checkingRegistration
-    ) {
+    if (!event?.id || isRegistered || loading || checkingRegistration) {
       return;
     }
 
@@ -121,9 +107,7 @@ function EventDetails({ event, onBack }) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            user_id: USER_ID,
-          }),
+          body: JSON.stringify({ user_id: USER_ID }),
         }
       );
 
@@ -153,22 +137,11 @@ function EventDetails({ event, onBack }) {
     }
   }
 
-  // CANCEL REGISTRATION
+  // Cancel registration
   async function handleCancelRegistration() {
-    if (
-      !event?.id ||
-      !isRegistered ||
-      loading ||
-      checkingRegistration
-    ) {
+    if (!event?.id || !isRegistered || loading || checkingRegistration) {
       return;
     }
-
-    const confirmed = window.confirm(
-      "Haluatko varmasti perua ilmoittautumisesi?"
-    );
-
-    if (!confirmed) return;
 
     setLoading(true);
     setMessage("");
@@ -181,9 +154,7 @@ function EventDetails({ event, onBack }) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            user_id: USER_ID,
-          }),
+          body: JSON.stringify({ user_id: USER_ID }),
         }
       );
 
@@ -191,28 +162,26 @@ function EventDetails({ event, onBack }) {
 
       if (!response.ok) {
         throw new Error(
-          data.error ||
-            "Ilmoittautumisen peruminen epäonnistui."
+          data.error || "Ilmoittautumisen peruminen epäonnistui."
         );
       }
 
       setIsRegistered(false);
-      setMessage(
-        "Ilmoittautuminen peruttu onnistuneesti!"
-      );
+      setShowCancelModal(false);
+      setMessage("Ilmoittautuminen peruttu onnistuneesti!");
     } catch (error) {
       setMessage(
         error.message || "Palvelimeen ei saatu yhteyttä."
       );
+      setShowCancelModal(false);
     } finally {
       setLoading(false);
     }
   }
 
-  // SAVE EDITED EVENT
+  // Save edited event
   async function handleSave(e) {
     e.preventDefault();
-
     if (!event?.id || loading) return;
 
     setLoading(true);
@@ -234,8 +203,7 @@ function EventDetails({ event, onBack }) {
 
       if (!response.ok) {
         throw new Error(
-          data.error ||
-            "Tapahtuman muokkaus epäonnistui."
+          data.error || "Tapahtuman muokkaus epäonnistui."
         );
       }
 
@@ -251,7 +219,7 @@ function EventDetails({ event, onBack }) {
     }
   }
 
-  // DELETE EVENT
+  // Delete event
   async function handleDelete() {
     if (!event?.id || loading) return;
 
@@ -267,17 +235,14 @@ function EventDetails({ event, onBack }) {
     try {
       const response = await fetch(
         `${API_URL}/events/${event.id}`,
-        {
-          method: "DELETE",
-        }
+        { method: "DELETE" }
       );
 
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(
-          data.error ||
-            "Tapahtuman poistaminen epäonnistui."
+          data.error || "Tapahtuman poistaminen epäonnistui."
         );
       }
 
@@ -291,20 +256,17 @@ function EventDetails({ event, onBack }) {
     }
   }
 
-  // CANCEL EDITING
   function cancelEditing() {
     setForm(getInitialForm(event));
     setEditing(false);
     setMessage("");
   }
 
-  // EVENT NOT FOUND
   if (!event) {
     return (
       <main className="event-details-page">
         <div className="event-details-container">
           <p>Tapahtumaa ei löytynyt.</p>
-
           <button
             type="button"
             className="event-back-button"
@@ -320,9 +282,6 @@ function EventDetails({ event, onBack }) {
   return (
     <main className="event-details-page">
       <div className="event-details-container">
-
-        {/* BACK BUTTON */}
-
         <button
           type="button"
           className="event-back-button"
@@ -332,47 +291,33 @@ function EventDetails({ event, onBack }) {
         </button>
 
         {editing ? (
-
-
           <div className="event-edit-wrapper">
-
             <div className="create-event-heading">
               <span className="create-event-tag">
                 ✨ MUOKKAA TAPAHTUMAA
               </span>
-
               <h1>
                 Muokkaa <span>tapahtumaa</span>
               </h1>
-
-              <p>
-                Päivitä tapahtumasi tiedot helposti.
-              </p>
+              <p>Päivitä tapahtumasi tiedot helposti.</p>
             </div>
 
             <form
               className="event-form event-edit-form"
               onSubmit={handleSave}
             >
-
               <div className="form-section-title">
-                <div className="form-icon">
-                  📅
-                </div>
-
+                <div className="form-icon">📅</div>
                 <div>
                   <h2>Tapahtuman tiedot</h2>
                   <p>Muokkaa tapahtuman perustietoja.</p>
                 </div>
               </div>
 
-              {/* EVENT NAME */}
-
               <div className="form-group">
                 <label htmlFor="edit-title">
                   Tapahtuman nimi
                 </label>
-
                 <input
                   id="edit-title"
                   name="title"
@@ -384,13 +329,10 @@ function EventDetails({ event, onBack }) {
                 />
               </div>
 
-              {/* CATEGORY */}
-
               <div className="form-group">
                 <label htmlFor="edit-category">
                   Kategoria
                 </label>
-
                 <select
                   id="edit-category"
                   name="category"
@@ -398,22 +340,35 @@ function EventDetails({ event, onBack }) {
                   onChange={handleChange}
                   required
                 >
-                  <option>Viihde</option>
-                  <option>Koulutus</option>
-                  <option>Teknologia</option>
-                  <option>Urheilu</option>
-                  <option>Ura</option>
-                  <option>Vapaa-aika</option>
+                  {[
+                    "Viihde",
+                    "Koulutus",
+                    "Teknologia",
+                    "Urheilu",
+                    "Ura",
+                    "Vapaa-aika",
+                    "Pelit",
+                    "Opiskelu",
+                    "Liikunta",
+                    "Jalkapallo",
+                    "Kahvittelu",
+                    "Kokkaus",
+                    "Elokuvat",
+                    "Musiikki",
+                    "Tanssi",
+                    "Jooga",
+                  ].map((item) => (
+                    <option key={item} value={item}>
+                      {item}
+                    </option>
+                  ))}
                 </select>
               </div>
-
-              {/* DESCRIPTION */}
 
               <div className="form-group">
                 <label htmlFor="edit-description">
                   Kuvaus
                 </label>
-
                 <textarea
                   id="edit-description"
                   name="description"
@@ -424,13 +379,10 @@ function EventDetails({ event, onBack }) {
                 />
               </div>
 
-              {/* LOCATION */}
-
               <div className="form-group">
                 <label htmlFor="edit-location">
                   Paikka
                 </label>
-
                 <input
                   id="edit-location"
                   name="location"
@@ -441,8 +393,6 @@ function EventDetails({ event, onBack }) {
                   required
                 />
               </div>
-
-              {/* DATE AND TIME */}
 
               <div className="event-time-section">
                 <h3>Tapahtuman ajankohta</h3>
@@ -462,7 +412,6 @@ function EventDetails({ event, onBack }) {
                         onChange={handleChange}
                         required
                       />
-
                       <input
                         name="time"
                         type="time"
@@ -475,8 +424,6 @@ function EventDetails({ event, onBack }) {
                   </div>
                 </div>
               </div>
-
-              {/* SAVE AND CANCEL */}
 
               <div className="edit-form-actions">
                 <button
@@ -504,16 +451,12 @@ function EventDetails({ event, onBack }) {
                   {message}
                 </p>
               )}
-
             </form>
           </div>
-
         ) : (
-
           <div className="details-card event-view-card">
-
             <div className="event-emoji">
-              {event.emoji || "🎉"}
+              {getEventEmoji(event)}
             </div>
 
             <span className="category">
@@ -521,37 +464,22 @@ function EventDetails({ event, onBack }) {
             </span>
 
             <h1>{event.title}</h1>
-
             <p>{event.description}</p>
 
-            {/* EVENT INFORMATION */}
-
             <div className="event-detail-info">
-              <p>
-                📍 Paikka: {event.location}
-              </p>
-
-              <p>
-                📅 Päivämäärä: {event.date}
-              </p>
-
-              <p>
-                🕒 Aika: {event.time}
-              </p>
+              <p>📍 Paikka: {event.location}</p>
+              <p>📅 Päivämäärä: {event.date}</p>
+              <p>🕒 Aika: {event.time}</p>
 
               {event.max_participants != null && (
                 <p>
-                  👥 Osallistujia:{" "}
-                  {event.participants || 0} /{" "}
+                  👥 Osallistujia: {event.participants || 0} /{" "}
                   {event.max_participants}
                 </p>
               )}
             </div>
 
-            {/* REGISTRATION SECTION */}
-
             <div className="registration-actions">
-
               {checkingRegistration ? (
                 <button
                   type="button"
@@ -560,9 +488,7 @@ function EventDetails({ event, onBack }) {
                 >
                   Tarkistetaan ilmoittautumista...
                 </button>
-
               ) : isRegistered ? (
-
                 <>
                   <div className="registration-success">
                     ✓ Olet jo ilmoittautunut tapahtumaan
@@ -571,17 +497,16 @@ function EventDetails({ event, onBack }) {
                   <button
                     type="button"
                     className="cancel-registration-button"
-                    onClick={handleCancelRegistration}
+                    onClick={() => {
+                      setMessage("");
+                      setShowCancelModal(true);
+                    }}
                     disabled={loading}
                   >
-                    {loading
-                      ? "Perutaan..."
-                      : "Peru ilmoittautuminen"}
+                    Peru ilmoittautuminen
                   </button>
                 </>
-
               ) : (
-
                 <button
                   type="button"
                   className="event-register-button"
@@ -592,17 +517,12 @@ function EventDetails({ event, onBack }) {
                     ? "Ilmoittaudutaan..."
                     : "Ilmoittaudu tapahtumaan"}
                 </button>
-
               )}
-
             </div>
 
             <hr />
 
-            {/* EVENT ACTIONS */}
-
             <div className="event-actions">
-
               <button
                 type="button"
                 onClick={() => {
@@ -622,17 +542,65 @@ function EventDetails({ event, onBack }) {
               >
                 Poista tapahtuma
               </button>
-
             </div>
 
             {message && (
               <p role="status">{message}</p>
             )}
-
           </div>
         )}
-
       </div>
+
+      
+      {showCancelModal && (
+        <div
+          className="joinup-modal-overlay"
+          onClick={() => {
+            if (!loading) setShowCancelModal(false);
+          }}
+        >
+          <div
+            className="joinup-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cancel-modal-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="joinup-modal-icon">
+              ✕
+            </div>
+
+            <h2 id="cancel-modal-title">
+              Peru ilmoittautuminen?
+            </h2>
+
+            <p>
+              Haluatko varmasti perua ilmoittautumisesi
+              tapahtumaan <strong>{event.title}</strong>?
+            </p>
+
+            <div className="joinup-modal-actions">
+              <button
+                type="button"
+                className="joinup-modal-back"
+                onClick={() => setShowCancelModal(false)}
+                disabled={loading}
+              >
+                Takaisin
+              </button>
+
+              <button
+                type="button"
+                className="joinup-modal-confirm"
+                onClick={handleCancelRegistration}
+                disabled={loading}
+              >
+                {loading ? "Perutaan..." : "Kyllä, peru"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
