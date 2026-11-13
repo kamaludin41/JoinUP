@@ -15,6 +15,7 @@ import Register from "./pages/Register";
 import Myevents from "./pages/Myevents";
 
 import "./index.css";
+import "./App.css";
 
 const API_URL = "http://localhost:3001/api";
 const EVENTS_URL = `${API_URL}/events`;
@@ -211,9 +212,12 @@ export default function App() {
             {page === "details" && selectedEvent && (
               <EventDetails
                 event={selectedEvent}
-                onBack={() => setPage("events")}
                 token={token}
                 currentUser={currentUser}
+                onBack={async () => {
+                  await loadEvents();
+                  setPage("events");
+                }}
               />
             )}
 

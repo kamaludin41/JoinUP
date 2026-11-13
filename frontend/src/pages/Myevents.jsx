@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
+import { getEventEmoji } from "../utils/eventEmoji";
 
 const API_URL = "http://localhost:3001/api";
 
-function MyRegistrations({ token }) {
+function Myevents({ token }) {
   const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let cancelled = false;
+
     async function loadRegistrations() {
       if (!token) {
         setError("Kirjaudu sisään nähdäksesi ilmoittautumisesi.");
@@ -28,15 +31,25 @@ function MyRegistrations({ token }) {
           throw new Error(data.error || "Tapahtumien hakeminen epäonnistui.");
         }
 
-        setRegistrations(data.registrations || []);
+        if (!cancelled) {
+          setRegistrations(data);
+        }
       } catch (error) {
-        setError(error.message);
+        if (!cancelled) {
+          setError(error.message);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
     loadRegistrations();
+
+    return () => {
+      cancelled = true;
+    };
   }, [token]);
 
   if (loading) {
@@ -47,7 +60,7 @@ function MyRegistrations({ token }) {
 
   return (
     <main className="container section">
-      <h1>Omat ilmoittautumiset</h1>
+      <h1>My Events</h1>
       <p>Tapahtumat, joihin olet ilmoittautunut.</p>
 
       {error && <p role="alert">{error}</p>}
@@ -57,23 +70,27 @@ function MyRegistrations({ token }) {
       )}
 
       <div className="events-grid">
-        {registrations.map((event) => (
-          <article className="event-card" key={event.registration_id}>
-            <div className="event-emoji">{event.emoji || "🎉"}</div>
+        {registrations.map((registration) => {
+          const event = registration.event;
 
-            <h2>{event.title}</h2>
+          return (
+            <article className="event-card" key={registration.id}>
+              <div className="event-emoji">{getEventEmoji(event)}</div>
 
-            <p>{event.description}</p>
-            <p>📍 {event.location}</p>
-            <p>📅 {event.date}</p>
-            <p>🕒 {event.time}</p>
+              <h2>{event.title}</h2>
 
-            <p>✓ Olet ilmoittautunut tähän tapahtumaan</p>
-          </article>
-        ))}
+              <p>{event.description}</p>
+              <p>📍 {event.location}</p>
+              <p>📅 {event.date}</p>
+              <p>🕒 {event.time}</p>
+
+              <p>✓ Olet ilmoittautunut tähän tapahtumaan</p>
+            </article>
+          );
+        })}
       </div>
     </main>
   );
 }
 
-export default MyRegistrations;
+export default Myevents;

@@ -2,11 +2,16 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
   background: #f7f8fc;
   color: #20243a;
+  line-height: 1.5;
 }
 
 button,
@@ -23,31 +28,56 @@ button {
   padding: 11px 16px;
   background: #5b4bdb;
   color: white;
-  transition: 0.2s;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
 button:hover {
   background: #4535c2;
+  transform: translateY(-1px);
 }
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+input,
+select,
+textarea {
+  outline: none;
+}
+
+/* =====================================
+   NAVIGATION
+===================================== */
 
 .navbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 18px 7%;
-  background: white;
-  box-shadow: 0 2px 12px #20243a0c;
+  padding: 17px 7%;
+  background: #ffffff;
+  box-shadow: 0 2px 15px rgba(32, 36, 58, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .logo {
   color: #5b4bdb;
   cursor: pointer;
   margin: 0;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
 }
 
 .nav-links {
   display: flex;
+  align-items: center;
   gap: 10px;
   flex-wrap: wrap;
 }
@@ -55,17 +85,33 @@ button:hover {
 .nav-links button {
   background: transparent;
   color: #34364b;
+  padding: 10px 15px;
+  font-weight: 500;
 }
 
 .nav-links button:hover {
   background: #efedff;
   color: #5b4bdb;
+  transform: none;
 }
+
+/* =====================================
+   GENERAL LAYOUT
+===================================== */
 
 .container {
   width: min(1100px, 90%);
   margin: 0 auto;
 }
+
+.section {
+  padding-top: 35px;
+  padding-bottom: 50px;
+}
+
+/* =====================================
+   HOMEPAGE HERO
+===================================== */
 
 .hero {
   margin-top: 32px;
@@ -83,6 +129,7 @@ button:hover {
 .hero p {
   max-width: 600px;
   line-height: 1.7;
+  color: #626579;
 }
 
 .eyebrow,
@@ -91,10 +138,9 @@ button:hover {
   font-weight: bold;
 }
 
-.section {
-  padding-top: 35px;
-  padding-bottom: 50px;
-}
+/* =====================================
+   EVENT GRID AND CARDS
+===================================== */
 
 .event-grid {
   display: grid;
@@ -109,7 +155,14 @@ button:hover {
   border: 1px solid #e9eaf2;
   border-radius: 18px;
   padding: 22px;
-  box-shadow: 0 5px 20px #20243a08;
+  box-shadow: 0 5px 20px rgba(32, 36, 58, 0.04);
+  transition: all 0.25s ease;
+}
+
+.event-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(32, 36, 58, 0.09);
+  border-color: #d9d1ff;
 }
 
 .event-emoji {
@@ -127,6 +180,10 @@ button:hover {
   color: #626579;
 }
 
+/* =====================================
+   EVENT FILTERS
+===================================== */
+
 .filters {
   display: flex;
   flex-wrap: wrap;
@@ -138,6 +195,13 @@ button:hover {
   background: white;
   border: 1px solid #dedfec;
   color: #34364b;
+  border-radius: 30px;
+}
+
+.filters button:hover {
+  background: #efedff;
+  color: #5b4bdb;
+  transform: none;
 }
 
 .filters button.active {
@@ -145,50 +209,18 @@ button:hover {
   color: white;
 }
 
-.event-form {
-  display: grid;
-  gap: 12px;
-  max-width: 600px;
-  padding: 25px;
-  background: white;
-  border-radius: 18px;
-  border: 1px solid #e9eaf2;
-}
-
-.event-form input,
-.event-form select,
-.event-form textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #dcddea;
-  border-radius: 9px;
-  background: white;
-}
-
-.event-form textarea {
-  min-height: 110px;
-  resize: vertical;
-}
-
-.event-form label {
-  font-weight: bold;
-}
+/* =====================================
+   EVENT DETAILS
+===================================== */
 
 .details-card {
   margin-top: 25px;
   max-width: 700px;
 }
 
-@media (max-width: 600px) {
-  .navbar {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .hero {
-    padding: 35px 22px;
-  }
-}
+/* =====================================
+   CONTACT FORM
+===================================== */
 
 .contact-form {
   display: flex;
@@ -212,6 +244,7 @@ button:hover {
   border: 1px solid #ddd5f5;
   border-radius: 10px;
   font: inherit;
+  background: white;
 }
 
 .contact-form button,
@@ -231,4 +264,81 @@ button:hover {
   padding: 20px;
   background: #f0edff;
   border-radius: 14px;
+}
+
+/* =====================================
+   EVENT ACTIONS
+===================================== */
+
+.event-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.event-actions button {
+  padding: 12px 20px;
+}
+
+/* =====================================
+   RESPONSIVE DESIGN
+===================================== */
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 16px 5%;
+  }
+
+  .hero {
+    padding: 45px 28px;
+  }
+
+  .event-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .navbar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .nav-links {
+    width: 100%;
+    gap: 5px;
+  }
+
+  .nav-links button {
+    padding: 9px 10px;
+    font-size: 13px;
+  }
+
+  .container {
+    width: 92%;
+  }
+
+  .hero {
+    padding: 35px 22px;
+    margin-top: 20px;
+  }
+
+  .hero h1 {
+    font-size: 34px;
+  }
+
+  .section {
+    padding-top: 30px;
+    padding-bottom: 40px;
+  }
+
+  .event-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .details-card {
+    padding: 18px;
+  }
 }

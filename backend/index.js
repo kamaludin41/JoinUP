@@ -16,6 +16,9 @@ dotenv.config();
 
 const scrypt = promisify(scryptCallback);
 const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET puuttuu .env-tiedostosta.");
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -106,7 +109,7 @@ app.post("/api/auth/register", async (req, res) => {
     const normalizedEmail = email.trim().toLowerCase();
 
     const existingUser = users.find(
-      (user) => user.email?.toLowerCase() === normalizedEmail,
+      (user) => user.email?.trim().toLowerCase() === normalizedEmail,
     );
 
     if (existingUser) {
@@ -240,6 +243,31 @@ app.get("/api/registrations", async (req, res) => {
     });
   }
 });
+// Hae kirjautuneen käyttäjän omat tapahtumat
+app.get("/api/my-registrations", authenticateToken, async (req, res) => {
+  try {
+    const registrations = await readData("registrations.json");
+    const events = await readData("events.json");
+
+    const myRegistrations = registrations
+      .filter((registration) => Number(registration.user_id) === req.user.id)
+      .map((registration) => {
+        const event = events.find(
+          (item) => Number(item.id) === Number(registration.event_id),
+        );
+
+        return event ? { ...registration, event } : null;
+      })
+      .filter(Boolean);
+
+    res.json(myRegistrations);
+  } catch (error) {
+    console.error("Omien tapahtumien hakeminen epäonnistui:", error);
+    res.status(500).json({
+      error: "Omien tapahtumien hakeminen epäonnistui.",
+    });
+  }
+});
 
 // Hae kaikki tapahtumat
 app.get("/api/events", async (req, res) => {
@@ -263,39 +291,6 @@ app.get("/api/events", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Tapahtumien haku epäonnistui" });
-  }
-});
-// Hakee kirjautuneen käyttäjän omat ilmoittautumiset
-app.get("/api/my-registrations", authenticateToken, async (req, res) => {
-  try {
-    const userId = req.user.id;
-
-    const registrations = await readData("registrations.json");
-    const events = await readData("events.json");
-
-    const myRegistrations = registrations
-      .filter((registration) => Number(registration.user_id) === userId)
-      .map((registration) => {
-        const event = events.find(
-          (item) => Number(item.id) === Number(registration.event_id),
-        );
-
-        if (!event) return null;
-
-        return {
-          ...event,
-          registration_id: registration.id,
-          registered_at: registration.registered_at,
-        };
-      })
-      .filter(Boolean);
-
-    res.json({ registrations: myRegistrations });
-  } catch (error) {
-    console.error("Omien ilmoittautumisten haku epäonnistui:", error);
-    res.status(500).json({
-      error: "Omien ilmoittautumisten hakeminen epäonnistui.",
-    });
   }
 });
 // Salasanan turvallinen hajautus
@@ -640,6 +635,50 @@ app.post("/api/events/:id/register", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "Ilmoittautuminen epäonnistui." });
   }
 });
+
+// Peruuta ilmoittautuminen
+app.delete("/api/events/:id/register", authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const eventId = Number(req.params.id);
+
+    const registrations = await readData("registrations.json");
+
+    const registrationExists = registrations.some(
+      (registration) =>
+        Number(registration.user_id) === userId &&
+        Number(registration.event_id) === eventId,
+    );
+
+    if (!registrationExists) {
+      return res.status(404).json({
+        error: "Ilmoittautumista ei löydy.",
+      });
+    }
+
+    const updatedRegistrations = registrations.filter(
+      (registration) =>
+        !(
+          Number(registration.user_id) === userId &&
+          Number(registration.event_id) === eventId
+        ),
+    );
+
+    await writeData("registrations.json", updatedRegistrations);
+
+    res.json({
+      ok: true,
+      message: "Ilmoittautuminen peruttu onnistuneesti!",
+    });
+  } catch (error) {
+    console.error("Ilmoittautumisen peruminen epäonnistui:", error);
+
+    res.status(500).json({
+      error: "Ilmoittautumisen peruminen epäonnistui.",
+    });
+  }
+});
+
 // users
 app.put("/api/users/:id", authenticateToken, async (req, res) => {
   try {
