@@ -34,6 +34,69 @@ h3 {
 }
 
 /* =====================================
+   SITE FOOTER
+   ===================================== */
+
+.app-footer {
+  margin-top: 40px;
+  background: linear-gradient(120deg, #5142a6, #6552c5);
+  color: #f5f3ff;
+}
+
+.footer-inner {
+  width: min(1100px, 90%);
+  margin: 0 auto;
+  padding: 36px 0 18px;
+}
+
+.footer-main,
+.footer-brand,
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-brand {
+  justify-content: flex-start;
+  gap: 13px;
+}
+
+.footer-mark {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.footer-brand h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 19px;
+}
+
+.footer-brand p,
+.footer-message {
+  margin: 3px 0 0;
+  color: #d0cce2;
+  font-size: 14px;
+}
+
+.footer-bottom {
+  margin-top: 28px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  color: #bcb8d0;
+  font-size: 12px;
+}
+
+/* =====================================
    SECTION HEADINGS
    ===================================== */
 
@@ -44,6 +107,20 @@ h3 {
 
 .section>p {
   color: #73798d;
+}
+
+@media (max-width: 600px) {
+  .footer-main {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .footer-bottom {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
 }
 
 /* =====================================
