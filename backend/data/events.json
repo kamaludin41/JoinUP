@@ -141,5 +141,16 @@
     "time": "18:00",
     "organizer_id": 1,
     "max_participants": 25
+  },
+  {
+    "id": 21,
+    "title": "salli",
+    "description": "Tule nauttimaan jalkapalloa ja tutustumaan uusiin ihmisiin!",
+    "location": "Talihalli",
+    "category": "sali",
+    "date": "2027-01-10",
+    "time": "17:00",
+    "organizer_id": 1,
+    "max_participants": 20
   }
 ]

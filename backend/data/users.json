@@ -1,27 +1,23 @@
 [
   {
-    "id": 1,
-    "name": "Kamal",
-    "email": "kamal@example.com"
+    "id": 6,
+    "name": "ranjit",
+    "email": "testi2@example.com",
+    "password_hash": "b63ff7c1b5ede5756455bcfbded28248:98d17e3097b4d893ba4c0a67e141a9037c1a8d6d7473d336649b48785339a36183e8c8ccdb34927ede16698cbbb5e83ca4320d69ecd0690d2f8f4c19ffc2977c",
+    "interests": "lentopallo"
   },
   {
-    "id": 2,
-    "name": "Amina",
-    "email": "amina@example.com"
+    "id": 7,
+    "name": "Testi",
+    "email": "ranjitrg@example.com",
+    "password_hash": "9cf281b2d783457b7249b700dd6859bd:999eb1f9ce002013e5a0ab94afe8d209a61781f3fdc7b026ba87b9b749b395928944e000f83a904eee8a0765a51bdb3f492a9a9f16caad1d96cb48a57c99a06c",
+    "interests": ""
   },
   {
-    "id": 3,
-    "name": "Ranjit",
-    "email": "ranjit@example.com"
-  },
-  {
-    "id": 4,
-    "name": "Renaton",
-    "email": "renaton@example.com"
-  },
-  {
-    "id": 5,
-    "name": "gavi",
-    "email": "gavi@example.com"
+    "id": 8,
+    "name": "renaton",
+    "email": "renaton@example.com",
+    "password_hash": "cc83285ddc1557f5f8afa495a4d3b851:b8143feb8cb1e1d1a19715cdd3137f26484a3e96e419dfdab034d74d2b59e36d71694afb1c724ca20244114b42356d119feb0e10521ad109391e715b6865aee0",
+    "interests": ""
   }
 ]

@@ -2,18 +2,18 @@ import { useState, useEffect } from "react";
 
 const API_URL = "http://localhost:3001/api";
 
-function EventDetails({ event, onBack }) {
+function EventDetails({ event, onBack, token, currentUser }) {
   const [isRegistered, setIsRegistered] = useState(false);
   const [checkingRegistration, setCheckingRegistration] = useState(true);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Tarkista, onko käyttäjä jo ilmoittautunut tapahtumaan
+  // Tarkista kirjautuneen käyttäjän ilmoittautuminen
   useEffect(() => {
     let cancelled = false;
 
     async function checkRegistration() {
-      if (!event?.id) {
+      if (!event?.id || !token || !currentUser?.id) {
         setIsRegistered(false);
         setCheckingRegistration(false);
         return;
@@ -23,22 +23,23 @@ function EventDetails({ event, onBack }) {
       setMessage("");
 
       try {
-        const response = await fetch(`${API_URL}/registrations`);
-
-        if (!response.ok) {
-          throw new Error("Ilmoittautumisten haku epäonnistui.");
-        }
-
-        const registrations = await response.json();
-
-        const alreadyRegistered = registrations.some(
-          (registration) =>
-            Number(registration.user_id) === 1 &&
-            Number(registration.event_id) === Number(event.id),
+        const response = await fetch(
+          `${API_URL}/events/${event.id}/registration`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
         );
 
+        if (!response.ok) {
+          throw new Error("Ilmoittautumisen tarkistus epäonnistui.");
+        }
+
+        const data = await response.json();
+
         if (!cancelled) {
-          setIsRegistered(alreadyRegistered);
+          setIsRegistered(data.isRegistered);
         }
       } catch (error) {
         console.error("Ilmoittautumisen tarkistus epäonnistui:", error);
@@ -60,7 +61,7 @@ function EventDetails({ event, onBack }) {
     return () => {
       cancelled = true;
     };
-  }, [event?.id]);
+  }, [event?.id, token, currentUser?.id]);
 
   // Ilmoittaudu tapahtumaan
   async function handleRegister() {
@@ -72,12 +73,16 @@ function EventDetails({ event, onBack }) {
     setMessage("");
 
     try {
+      if (!token || !currentUser?.id) {
+        throw new Error("Kirjaudu sisään ilmoittautuaksesi.");
+      }
+
       const response = await fetch(`${API_URL}/events/${event.id}/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ user_id: 1 }),
       });
 
       const data = await response.json();

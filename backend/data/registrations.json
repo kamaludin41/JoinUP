@@ -1,44 +1,80 @@
 [
   {
-    "id": 1,
-    "user_id": 1,
-    "event_id": 7,
-    "registered_at": "2026-10-29T12:20:36"
-  },
-  {
-    "id": 2,
-    "user_id": 1,
-    "event_id": 8,
-    "registered_at": "2026-10-29T20:19:15.673Z"
-  },
-  {
-    "id": 3,
-    "user_id": 1,
-    "event_id": 11,
-    "registered_at": "2026-10-29T20:20:31.705Z"
-  },
-  {
-    "id": 4,
-    "user_id": 1,
-    "event_id": 12,
-    "registered_at": "2026-10-29T20:22:16.092Z"
-  },
-  {
-    "id": 5,
-    "user_id": 1,
-    "event_id": 90,
-    "registered_at": "2026-10-29T20:34:45.301Z"
-  },
-  {
-    "id": 6,
-    "user_id": 1,
-    "event_id": 16,
-    "registered_at": "2026-10-29T20:58:29.329Z"
-  },
-  {
     "id": 7,
     "user_id": 1,
     "event_id": 19,
     "registered_at": "2026-10-30T08:02:17.931Z"
+  },
+  {
+    "id": 8,
+    "user_id": 1,
+    "event_id": 20,
+    "registered_at": "2026-11-02T10:08:58.062Z"
+  },
+  {
+    "id": 9,
+    "user_id": 8,
+    "event_id": 7,
+    "registered_at": "2026-11-04T12:16:44.227Z"
+  },
+  {
+    "id": 10,
+    "user_id": 6,
+    "event_id": 7,
+    "registered_at": "2026-11-04T12:17:30.941Z"
+  },
+  {
+    "id": 11,
+    "user_id": 6,
+    "event_id": 13,
+    "registered_at": "2026-11-04T12:23:29.065Z"
+  },
+  {
+    "id": 12,
+    "user_id": 6,
+    "event_id": 18,
+    "registered_at": "2026-11-04T12:23:53.892Z"
+  },
+  {
+    "id": 13,
+    "user_id": 6,
+    "event_id": 17,
+    "registered_at": "2026-11-04T12:28:10.081Z"
+  },
+  {
+    "id": 14,
+    "user_id": 6,
+    "event_id": 20,
+    "registered_at": "2026-11-04T12:28:24.045Z"
+  },
+  {
+    "id": 15,
+    "user_id": 8,
+    "event_id": 17,
+    "registered_at": "2026-11-10T07:40:50.221Z"
+  },
+  {
+    "id": 16,
+    "user_id": 8,
+    "event_id": 20,
+    "registered_at": "2026-11-10T07:41:05.976Z"
+  },
+  {
+    "id": 17,
+    "user_id": 8,
+    "event_id": 13,
+    "registered_at": "2026-11-10T07:57:11.399Z"
+  },
+  {
+    "id": 18,
+    "user_id": 8,
+    "event_id": 18,
+    "registered_at": "2026-11-10T08:11:37.178Z"
+  },
+  {
+    "id": 19,
+    "user_id": 8,
+    "event_id": 21,
+    "registered_at": "2026-11-10T08:33:49.666Z"
   }
 ]

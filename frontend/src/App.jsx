@@ -10,12 +10,14 @@ import EventDetails from "./pages/EventDetails";
 import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
 import Contact from "./pages/Contact";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Myevents from "./pages/Myevents";
 
 import "./index.css";
 
-const API_URL = "http://localhost:3001/api/events";
-const REGISTRATION_API_URL = "http://localhost:3001/api/registrations";
-const USER_API_URL = "http://localhost:3001/api/users";
+const API_URL = "http://localhost:3001/api";
+const EVENTS_URL = `${API_URL}/events`;
 
 export default function App() {
   const [events, setEvents] = useState([]);
@@ -25,13 +27,21 @@ export default function App() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [token, setToken] = useState(localStorage.getItem("token") || "");
+
+  const [currentUser, setCurrentUser] = useState(null);
+  function handleLogout() {
+    localStorage.removeItem("token");
+    setToken("");
+    setCurrentUser(null);
+    setPage("home");
+  }
 
   // Hae tapahtumat backendistä
   async function loadEvents() {
     try {
       setError("");
-
-      const response = await fetch(API_URL);
+      const response = await fetch(EVENTS_URL);
 
       if (!response.ok) {
         throw new Error("Tapahtumien hakeminen epäonnistui.");
@@ -57,6 +67,36 @@ export default function App() {
   useEffect(() => {
     loadEvents();
   }, []);
+  useEffect(() => {
+    async function loadCurrentUser() {
+      if (!token) {
+        setCurrentUser(null);
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          localStorage.removeItem("token");
+          setToken("");
+          setCurrentUser(null);
+          return;
+        }
+
+        const data = await response.json();
+        setCurrentUser(data.user);
+      } catch (error) {
+        console.error("Käyttäjän hakeminen epäonnistui:", error);
+      }
+    }
+
+    loadCurrentUser();
+  }, [token]);
 
   // Hae tapahtumia hakusanalla
   const filteredEvents = events.filter((event) =>
@@ -81,7 +121,7 @@ export default function App() {
     try {
       setError("");
 
-      const response = await fetch(API_URL, {
+      const response = await fetch(EVENTS_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -102,10 +142,19 @@ export default function App() {
       setError(err.message || "Tapahtuman tallentaminen epäonnistui.");
     }
   }
+  function handleLogin(newToken) {
+    localStorage.setItem("token", newToken);
+    setToken(newToken);
+  }
 
   return (
     <div className="app">
-      <Navbar page={page} setPage={setPage} />
+      <Navbar
+        page={page}
+        setPage={setPage}
+        currentUser={currentUser}
+        onLogout={handleLogout}
+      />
 
       {error && (
         <div className="container section" role="alert">
@@ -123,6 +172,12 @@ export default function App() {
           </div>
         ) : (
           <>
+            {page === "login" && (
+              <Login onLogin={handleLogin} setPage={setPage} />
+            )}
+            {page === "register" && (
+              <Register onLogin={handleLogin} setPage={setPage} />
+            )}
             {page === "home" && (
               <Home
                 events={filteredEvents}
@@ -157,12 +212,22 @@ export default function App() {
               <EventDetails
                 event={selectedEvent}
                 onBack={() => setPage("events")}
+                token={token}
+                currentUser={currentUser}
               />
             )}
 
             {page === "favorites" && <Favorites favorites={favorites} />}
 
-            {page === "profile" && <Profile />}
+            {page === "profile" && (
+              <Profile
+                currentUser={currentUser}
+                token={token}
+                onUserUpdate={setCurrentUser}
+              />
+            )}
+
+            {page === "myevents" && <Myevents token={token} />}
 
             {page === "contact" && <Contact />}
           </>
