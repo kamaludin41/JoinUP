@@ -191,7 +191,6 @@ export default function App() {
 
             {page === "events" && (
               <>
-                <SearchBar search={search} setSearch={setSearch} />
                 <Events
                   events={filteredEvents}
                   onSelect={(event) => {

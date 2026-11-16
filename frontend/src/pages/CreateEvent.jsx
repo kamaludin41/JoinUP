@@ -56,7 +56,7 @@ function CreateEvent({ onCreate, setPage }) {
     <main className="create-event-page">
       <div className="create-event-container">
 
-        {/* PAGE HEADING */}
+       
         <div className="create-event-heading">
           <span className="create-event-tag">
             ✨ UUSI TAPAHTUMA
@@ -66,12 +66,10 @@ function CreateEvent({ onCreate, setPage }) {
             Luo uusi <span>tapahtuma</span>
           </h1>
 
-          <p>
-            Järjestä jotain mukavaa ja kutsu muita mukaan!
-          </p>
+         
         </div>
 
-        {/* EVENT FORM */}
+   
         <form
           className="event-form"
           onSubmit={handleSubmit}
@@ -166,7 +164,7 @@ function CreateEvent({ onCreate, setPage }) {
             />
           </div>
 
-          {/* START AND END DATE / TIME */}
+         
           <div className="event-time-section">
 
             <h3>
@@ -266,9 +264,7 @@ function CreateEvent({ onCreate, setPage }) {
               : "⊕ Luo tapahtuma"}
           </button>
 
-          <p className="form-footer">
-            💜 Tee tapahtuma ja löydä uusia ihmisiä!
-          </p>
+          
 
         </form>
       </div>
