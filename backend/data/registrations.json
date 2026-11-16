@@ -94,5 +94,11 @@
     "user_id": 8,
     "event_id": 13,
     "registered_at": "2026-11-16T08:25:46.604Z"
+  },
+  {
+    "id": 24,
+    "user_id": 8,
+    "event_id": 21,
+    "registered_at": "2026-11-16T09:54:07.343Z"
   }
 ]
