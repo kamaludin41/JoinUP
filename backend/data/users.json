@@ -19,5 +19,12 @@
     "email": "renaton@example.com",
     "password_hash": "cc83285ddc1557f5f8afa495a4d3b851:b8143feb8cb1e1d1a19715cdd3137f26484a3e96e419dfdab034d74d2b59e36d71694afb1c724ca20244114b42356d119feb0e10521ad109391e715b6865aee0",
     "interests": ""
+  },
+  {
+    "id": 9,
+    "name": "Ranjit",
+    "email": "bhushalranjit@gmail.com",
+    "password_hash": "5c1510e6b35110cb4515d4f8431340da:2a867016d3d1a53c4d26594057dfd29ada6892c5f25fa2d8a09571377c364bd6e690dbf8bf407d249b7d6c398e6bccedcafabb2317c73af6a03b976d46fceabd",
+    "interests": ""
   }
 ]

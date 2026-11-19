@@ -72,8 +72,26 @@ async function readData(filename) {
   return JSON.parse(content);
 }
 
+
 async function writeData(filename, data) {
-  await fs.writeFile(filePath(filename), JSON.stringify(data, null, 2), "utf8");
+  const targetPath = filePath(filename);
+
+ 
+  const tempPath = `${targetPath}.${process.pid}.${randomBytes(6).toString("hex")}.tmp`;
+
+  try {
+    await fs.writeFile(
+      tempPath,
+      JSON.stringify(data, null, 2),
+      "utf8"
+    );
+
+   
+    await fs.rename(tempPath, targetPath);
+  } catch (error) {
+    await fs.unlink(tempPath).catch(() => {});
+    throw error;
+  }
 }
 
 function nextId(items) {
@@ -424,8 +442,9 @@ app.get("/api/auth/me", authenticateToken, async (req, res) => {
   }
 });
 
-// Lisää tapahtuma
-app.post("/api/events", async (req, res) => {
+
+
+app.post("/api/events", authenticateToken, async (req, res) => {
   try {
     const {
       title,
@@ -434,7 +453,6 @@ app.post("/api/events", async (req, res) => {
       category,
       date,
       time,
-      organizer_id,
       max_participants,
     } = req.body;
 
@@ -454,7 +472,10 @@ app.post("/api/events", async (req, res) => {
       category,
       date,
       time,
-      organizer_id: Number(organizer_id || 1),
+
+      
+      organizer_id: req.user.id,
+
       max_participants:
         max_participants === "" ||
         max_participants === null ||
@@ -469,22 +490,38 @@ app.post("/api/events", async (req, res) => {
     res.status(201).json({ ...event, participants: 0 });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Tapahtuman tallennus epäonnistui" });
+    res.status(500).json({
+      error: "Tapahtuman tallennus epäonnistui",
+    });
   }
 });
 
-// Muokkaa tapahtumaa
-app.put("/api/events/:id", async (req, res) => {
+
+
+app.put("/api/events/:id", authenticateToken, async (req, res) => {
   try {
     const events = await readData("events.json");
     const eventId = Number(req.params.id);
-    const index = events.findIndex((event) => Number(event.id) === eventId);
+
+    const index = events.findIndex(
+      (event) => Number(event.id) === eventId
+    );
 
     if (index === -1) {
-      return res.status(404).json({ error: "Tapahtumaa ei löydy" });
+      return res.status(404).json({
+        error: "Tapahtumaa ei löydy."
+      });
     }
 
     const oldEvent = events[index];
+
+    // Only the event creator can edit
+    if (Number(oldEvent.organizer_id) !== req.user.id) {
+      return res.status(403).json({
+        error: "Vain tapahtuman järjestäjä voi muokata tapahtumaa."
+      });
+    }
+
     const body = req.body;
 
     const updatedEvent = {
@@ -495,16 +532,6 @@ app.put("/api/events/:id", async (req, res) => {
       category: body.category ?? oldEvent.category,
       date: body.date ?? oldEvent.date,
       time: body.time ?? oldEvent.time,
-      organizer_id:
-        body.organizer_id === undefined
-          ? oldEvent.organizer_id
-          : Number(body.organizer_id),
-      max_participants:
-        body.max_participants === undefined
-          ? oldEvent.max_participants
-          : body.max_participants === "" || body.max_participants === null
-            ? null
-            : Number(body.max_participants),
     };
 
     if (
@@ -514,37 +541,59 @@ app.put("/api/events/:id", async (req, res) => {
       !updatedEvent.date ||
       !updatedEvent.time
     ) {
-      return res.status(400).json({ error: "Pakollisia kenttiä puuttuu" });
+      return res.status(400).json({
+        error: "Pakollisia kenttiä puuttuu."
+      });
     }
 
     events[index] = updatedEvent;
+
     await writeData("events.json", events);
 
     res.json(updatedEvent);
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Tapahtuman muokkaus epäonnistui" });
+    console.error("Tapahtuman muokkaus epäonnistui:", error);
+
+    res.status(500).json({
+      error: "Tapahtuman muokkaus epäonnistui."
+    });
   }
 });
 
-// Poista tapahtuma
-app.delete("/api/events/:id", async (req, res) => {
+
+
+
+app.delete("/api/events/:id", authenticateToken, async (req, res) => {
   try {
     const eventId = Number(req.params.id);
     const events = await readData("events.json");
-    const exists = events.some((event) => Number(event.id) === eventId);
 
-    if (!exists) {
-      return res.status(404).json({ error: "Tapahtumaa ei löydy" });
+    const event = events.find(
+      (item) => Number(item.id) === eventId
+    );
+
+    if (!event) {
+      return res.status(404).json({
+        error: "Tapahtumaa ei löydy",
+      });
+    }
+
+    // Only the event creator can delete
+    if (Number(event.organizer_id) !== req.user.id) {
+      return res.status(403).json({
+        error: "Vain tapahtuman järjestäjä voi poistaa tapahtuman.",
+      });
     }
 
     const remainingEvents = events.filter(
-      (event) => Number(event.id) !== eventId,
+      (item) => Number(item.id) !== eventId
     );
 
     const registrations = await readData("registrations.json");
+
     const remainingRegistrations = registrations.filter(
-      (r) => Number(r.event_id) !== eventId,
+      (r) => Number(r.event_id) !== eventId
     );
 
     await writeData("events.json", remainingEvents);
@@ -553,9 +602,12 @@ app.delete("/api/events/:id", async (req, res) => {
     res.json({ ok: true });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Tapahtuman poistaminen epäonnistui" });
+    res.status(500).json({
+      error: "Tapahtuman poistaminen epäonnistui",
+    });
   }
 });
+
 
 // Ilmoittaudu tapahtumaan
 // Tarkistaa, onko kirjautunut käyttäjä ilmoittautunut tapahtumaan

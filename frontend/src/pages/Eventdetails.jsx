@@ -22,6 +22,9 @@ function EventDetails({ event, onBack, token, currentUser }) {
   const [editing, setEditing] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [form, setForm] = useState(() => getInitialForm(event));
+  const [savedEvent, setSavedEvent] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
 
   // Update form when selected event changes
   useEffect(() => {
@@ -43,12 +46,15 @@ function EventDetails({ event, onBack, token, currentUser }) {
       }
 
       try {
-        const response = await fetch(`${API_URL}/events/${event.id}/register`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+      `${API_URL}/events/${event.id}/registration`,
+   {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
 
         if (!response.ok) {
           throw new Error("Ilmoittautumisen tarkistus epäonnistui.");
@@ -130,117 +136,130 @@ function EventDetails({ event, onBack, token, currentUser }) {
     }
   }
 
-  // Cancel registration
-  async function handleCancelRegistration() {
-    if (!event?.id || !isRegistered || loading || checkingRegistration) {
-      return;
-    }
 
-    const confirmed = window.confirm(
-      "Haluatko varmasti perua ilmoittautumisesi?",
-    );
-
-    if (!confirmed) return;
-
-    setLoading(true);
-    setMessage("");
-
-    try {
-      const response = await fetch(`${API_URL}/events/${event.id}/register`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_id: USER_ID,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.error || "Ilmoittautumisen peruminen epäonnistui.",
-        );
-      }
-
-      setIsRegistered(false);
-      setMessage("Ilmoittautuminen peruttu onnistuneesti!");
-    } catch (error) {
-      setMessage(error.message || "Palvelimeen ei saatu yhteyttä.");
-    } finally {
-      setLoading(false);
-    }
+async function handleCancelRegistration() {
+  if (!event?.id || !isRegistered || loading || checkingRegistration) {
+    return;
   }
 
-  // Save edited event
-  async function handleSave(e) {
-    e.preventDefault();
-    if (!event?.id || loading) return;
+  setLoading(true);
+  setMessage("");
 
-    setLoading(true);
-    setMessage("");
+  try {
+    const response = await fetch(`${API_URL}/events/${event.id}/register`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-    try {
-      const response = await fetch(`${API_URL}/events/${event.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      });
+    const data = await response.json();
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Tapahtuman muokkaus epäonnistui.");
-      }
-
-      setMessage("Tapahtuma päivitettiin!");
-      setEditing(false);
-      await onBack();
-    } catch (error) {
-      setMessage(error.message || "Palvelimeen ei saatu yhteyttä.");
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      throw new Error(
+        data.error || "Ilmoittautumisen peruminen epäonnistui."
+      );
     }
+
+    setIsRegistered(false);
+    setShowCancelModal(false);
+    setMessage("Ilmoittautuminen peruttu onnistuneesti!");
+
+  } catch (error) {
+    setMessage(error.message || "Palvelimeen ei saatu yhteyttä.");
+  } finally {
+    setLoading(false);
   }
+}
 
-  // Delete event
-  async function handleDelete() {
-    if (!event?.id || loading) return;
 
-    const confirmed = window.confirm("Haluatko varmasti poistaa tapahtuman?");
+ 
+async function handleSave(e) {
+  e.preventDefault();
 
-    if (!confirmed) return;
+  if (!event?.id || loading) return;
 
-    setLoading(true);
-    setMessage("");
+  setLoading(true);
+  setMessage("");
 
-    try {
-      const response = await fetch(`${API_URL}/events/${event.id}`, {
-        method: "DELETE",
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Tapahtuman poistaminen epäonnistui.");
-      }
-
-      await onBack();
-    } catch (error) {
-      setMessage(error.message || "Palvelimeen ei saatu yhteyttä.");
-    } finally {
-      setLoading(false);
+  try {
+    if (!token) {
+      throw new Error("Kirjaudu ensin sisään.");
     }
+
+    const response = await fetch(`${API_URL}/events/${event.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(form),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Tapahtuman muokkaus epäonnistui.");
+    }
+
+    const updatedEvent = {
+      ...event,
+      ...form,
+    };
+
+    setSavedEvent(updatedEvent);
+    setForm(getInitialForm(updatedEvent));
+    setEditing(false);
+    setMessage("✓ Tapahtuman muokkaus onnistui!");
+
+  } catch (error) {
+    setMessage(error.message || "Palvelimeen ei saatu yhteyttä.");
+  } finally {
+    setLoading(false);
   }
+}
+
+function handleDelete() {
+  if (!event?.id || loading) return;
+  setShowDeleteModal(true);
+}
+
+  async function confirmDelete() {
+  if (!event?.id || loading) return;
+
+  setLoading(true);
+  setMessage("");
+
+  try {
+    const response = await fetch(`${API_URL}/events/${event.id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Tapahtuman poistaminen epäonnistui.");
+    }
+
+    setShowDeleteModal(false);
+    await onBack();
+  } catch (error) {
+    setMessage(error.message || "Palvelimeen ei saatu yhteyttä.");
+  } finally {
+    setLoading(false);
+  }
+}
 
   function cancelEditing() {
     setForm(getInitialForm(event));
     setEditing(false);
     setMessage("");
   }
+  const displayEvent = savedEvent || event;
 
   if (!event) {
     return (
@@ -266,9 +285,7 @@ function EventDetails({ event, onBack, token, currentUser }) {
         </button>
 
         {editing ? (
-          /* =================================
-             EDIT EVENT FORM
-             ================================= */
+          
 
           <div className="event-edit-wrapper">
             <div className="create-event-heading">
@@ -423,32 +440,38 @@ function EventDetails({ event, onBack, token, currentUser }) {
             </form>
           </div>
         ) : (
-          /* =================================
-             EVENT DETAILS VIEW
-             ================================= */
+       
 
-          <div className="details-card event-view-card">
-            <div className="event-emoji">{getEventEmoji(event)}</div>
+         <div className="details-card event-view-card">
 
-            <span className="category">{event.category}</span>
+         {message && (
+         <div className="registration-success" role="status">
+           {message}
+          </div>
+           )}
 
-            <h1>{event.title}</h1>
-            <p>{event.description}</p>
+          <div className="event-emoji">
+            {getEventEmoji(displayEvent)}
+          </div>
 
-            <div className="event-detail-info">
-              <p>📍 Paikka: {event.location}</p>
+          <span className="category">{displayEvent.category}</span>
 
-              <p>📅 Päivämäärä: {event.date}</p>
+          <h1>{displayEvent.title}</h1>
 
-              <p>🕒 Aika: {event.time}</p>
+          <p>{displayEvent.description}</p>
 
-              {event.max_participants != null && (
-                <p>
-                  👥 Osallistujia: {event.participants || 0} /{" "}
-                  {event.max_participants}
-                </p>
-              )}
-            </div>
+          <div className="event-detail-info">
+            <p>📍 Paikka: {displayEvent.location}</p>
+            <p>📅 Päivämäärä: {displayEvent.date}</p>
+            <p>🕒 Aika: {displayEvent.time}</p>
+
+            {displayEvent.max_participants != null && (
+              <p>
+                👥 Osallistujia: {displayEvent.participants || 0} /{" "}
+                {displayEvent.max_participants}
+              </p>
+            )}
+          </div>
 
             <div className="registration-actions">
               {checkingRegistration ? (
@@ -491,43 +514,91 @@ function EventDetails({ event, onBack, token, currentUser }) {
 
             <hr />
 
-            <div className="event-actions">
-              <button
-                type="button"
-                onClick={() => {
-                  setForm(getInitialForm(event));
-                  setMessage("");
-                  setEditing(true);
-                }}
-                disabled={loading}
-              >
-                Muokkaa tapahtumaa
-              </button>
+           {currentUser &&
+          String(event.organizer_id) === String(currentUser.id) && (
+             <div className="event-actions">
+            <button
+        type="button"
+        onClick={() => {
+          setForm(getInitialForm(event));
+          setMessage("");
+          setEditing(true);
+        }}
+        disabled={loading}
+      >
+        Muokkaa tapahtumaa
+      </button>
 
-              <button type="button" onClick={handleDelete} disabled={loading}>
-                Poista tapahtuma
-              </button>
-            </div>
+      <button
+        type="button"
+        onClick={handleDelete}
+        disabled={loading}
+      >
+        Poista tapahtuma
+      </button>
+    </div>
+  )}
 
-            {message && <p role="status">{message}</p>}
-          </div>
-        )}
-      </div>
+    {showDeleteModal && (
+  <div
+    className="joinup-modal-overlay"
+    onClick={() => {
+      if (!loading) setShowDeleteModal(false);
+    }}
+  >
+    <div
+      className="joinup-modal"
+      role="dialog"
+      aria-modal="true"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="joinup-modal-icon">🗑️</div>
 
-      {showCancelModal && (
-        <div
-          className="joinup-modal-overlay"
-          onClick={() => {
-            if (!loading) setShowCancelModal(false);
-          }}
+      <h2>Poista tapahtuma?</h2>
+
+      <p>
+        Haluatko varmasti poistaa tapahtuman{" "}
+        <strong>{event.title}</strong>?
+        Tätä toimintoa ei voi peruuttaa.
+      </p>
+
+      <div className="joinup-modal-actions">
+        <button
+          type="button"
+          className="joinup-modal-back"
+          onClick={() => setShowDeleteModal(false)}
+          disabled={loading}
         >
-          <div
-            className="joinup-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="cancel-modal-title"
-            onClick={(e) => e.stopPropagation()}
-          >
+          Peruuta
+        </button>
+
+        <button
+          type="button"
+          className="joinup-modal-confirm"
+          onClick={confirmDelete}
+          disabled={loading}
+        >
+          {loading ? "Poistetaan..." : "Kyllä, poista"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+    {showCancelModal && (
+      <div
+        className="joinup-modal-overlay"
+        onClick={() => {
+          if (!loading) setShowCancelModal(false);
+        }}
+      >
+        <div
+          className="joinup-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="cancel-modal-title"
+          onClick={(e) => e.stopPropagation()}
+        >
             <div className="joinup-modal-icon">✕</div>
 
             <h2 id="cancel-modal-title">Peru ilmoittautuminen?</h2>
@@ -559,8 +630,12 @@ function EventDetails({ event, onBack, token, currentUser }) {
           </div>
         </div>
       )}
+          </div>
+        )}
+      </div>
     </main>
   );
 }
+
 
 export default EventDetails;

@@ -60,12 +60,6 @@
     "registered_at": "2026-11-04T10:49:05.499Z"
   },
   {
-    "id": 16,
-    "user_id": 8,
-    "event_id": 7,
-    "registered_at": "2026-11-13T09:47:33.247Z"
-  },
-  {
     "id": 19,
     "user_id": 8,
     "event_id": 14,
@@ -100,5 +94,11 @@
     "user_id": 8,
     "event_id": 21,
     "registered_at": "2026-11-16T09:54:07.343Z"
+  },
+  {
+    "id": 25,
+    "user_id": 9,
+    "event_id": 90,
+    "registered_at": "2026-11-17T10:00:35.859Z"
   }
 ]

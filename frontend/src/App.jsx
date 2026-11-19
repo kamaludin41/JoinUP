@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import Navbar from "./components/Navbar";
 import SearchBar from "./components/SearchBar";
@@ -28,9 +29,13 @@ export default function App() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [token, setToken] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState(
+    localStorage.getItem("token") || ""
+  );
 
   const [currentUser, setCurrentUser] = useState(null);
+
+  // Logout
   function handleLogout() {
     localStorage.removeItem("token");
     setToken("");
@@ -42,6 +47,7 @@ export default function App() {
   async function loadEvents() {
     try {
       setError("");
+
       const response = await fetch(EVENTS_URL);
 
       if (!response.ok) {
@@ -57,17 +63,21 @@ export default function App() {
       setEvents(data);
     } catch (err) {
       console.error("Tapahtumien haku epäonnistui:", err);
+
       setError(
-        "Tapahtumia ei voitu hakea. Tarkista, että backend toimii portissa 3001.",
+        "Tapahtumia ei voitu hakea. Tarkista, että backend toimii portissa 3001."
       );
     } finally {
       setLoading(false);
     }
   }
 
+  // Hae tapahtumat, kun sivu avataan
   useEffect(() => {
     loadEvents();
   }, []);
+
+  // Hae kirjautunut käyttäjä
   useEffect(() => {
     async function loadCurrentUser() {
       if (!token) {
@@ -105,7 +115,7 @@ export default function App() {
       event.category || ""
     } ${event.location || ""}`
       .toLowerCase()
-      .includes(search.toLowerCase()),
+      .includes(search.toLowerCase())
   );
 
   // Lisää tai poista suosikki
@@ -113,7 +123,7 @@ export default function App() {
     setFavorites((current) =>
       current.some((item) => item.id === event.id)
         ? current.filter((item) => item.id !== event.id)
-        : [...current, event],
+        : [...current, event]
     );
   }
 
@@ -122,10 +132,17 @@ export default function App() {
     try {
       setError("");
 
+      if (!token) {
+        throw new Error(
+          "Kirjaudu sisään ennen tapahtuman luomista."
+        );
+      }
+
       const response = await fetch(EVENTS_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(newEvent),
       });
@@ -133,16 +150,22 @@ export default function App() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Tapahtuman tallentaminen epäonnistui.");
+        throw new Error(
+          data.error || "Tapahtuman tallentaminen epäonnistui."
+        );
       }
 
       await loadEvents();
       setPage("events");
+
+      return data;
     } catch (err) {
       console.error("Tapahtuman luominen epäonnistui:", err);
-      setError(err.message || "Tapahtuman tallentaminen epäonnistui.");
+      throw err;
     }
   }
+
+  // Kirjautuminen
   function handleLogin(newToken) {
     localStorage.setItem("token", newToken);
     setToken(newToken);
@@ -160,6 +183,7 @@ export default function App() {
       {error && (
         <div className="container section" role="alert">
           <p>{error}</p>
+
           <button type="button" onClick={loadEvents}>
             Yritä uudelleen
           </button>
@@ -174,11 +198,19 @@ export default function App() {
         ) : (
           <>
             {page === "login" && (
-              <Login onLogin={handleLogin} setPage={setPage} />
+              <Login
+                onLogin={handleLogin}
+                setPage={setPage}
+              />
             )}
+
             {page === "register" && (
-              <Register onLogin={handleLogin} setPage={setPage} />
+              <Register
+                onLogin={handleLogin}
+                setPage={setPage}
+              />
             )}
+
             {page === "home" && (
               <Home
                 events={filteredEvents}
@@ -190,22 +222,23 @@ export default function App() {
             )}
 
             {page === "events" && (
-              <>
-                <Events
-                  events={filteredEvents}
-                  onSelect={(event) => {
-                    setSelectedEvent(event);
-                    setPage("details");
-                  }}
-                  setSelectedEvent={setSelectedEvent}
-                  favorites={favorites}
-                  toggleFavorite={toggleFavorite}
-                />
-              </>
+              <Events
+                events={filteredEvents}
+                onSelect={(event) => {
+                  setSelectedEvent(event);
+                  setPage("details");
+                }}
+                setSelectedEvent={setSelectedEvent}
+                favorites={favorites}
+                toggleFavorite={toggleFavorite}
+              />
             )}
 
             {page === "create" && (
-              <CreateEvent onCreate={createEvent} setPage={setPage} />
+              <CreateEvent
+                onCreate={createEvent}
+                setPage={setPage}
+              />
             )}
 
             {page === "details" && selectedEvent && (
@@ -220,7 +253,9 @@ export default function App() {
               />
             )}
 
-            {page === "favorites" && <Favorites favorites={favorites} />}
+            {page === "favorites" && (
+              <Favorites favorites={favorites} />
+            )}
 
             {page === "profile" && (
               <Profile
@@ -230,7 +265,9 @@ export default function App() {
               />
             )}
 
-            {page === "myevents" && <Myevents token={token} />}
+            {page === "myevents" && (
+              <Myevents token={token} />
+            )}
 
             {page === "contact" && <Contact />}
           </>

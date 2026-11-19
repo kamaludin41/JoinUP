@@ -152,5 +152,27 @@
     "time": "17:00",
     "organizer_id": 1,
     "max_participants": 20
+  },
+  {
+    "id": 91,
+    "title": "kamal ",
+    "description": "ksdjaashd",
+    "location": "helsinki",
+    "category": "Urheilu",
+    "date": "2026-11-18",
+    "time": "11:11",
+    "organizer_id": 1,
+    "max_participants": null
+  },
+  {
+    "id": 92,
+    "title": "sdjakfkf",
+    "description": "asd",
+    "location": "sad",
+    "category": "Vapaa-aika",
+    "date": "2026-11-19",
+    "time": "15:45",
+    "organizer_id": 8,
+    "max_participants": null
   }
 ]
