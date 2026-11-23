@@ -22,9 +22,7 @@ function CreateEvent({ onCreate, setPage }) {
     const end = new Date(`${endDate}T${endTime}`);
 
     if (end <= start) {
-      setError(
-        "Päättymisajan täytyy olla alkamisajan jälkeen."
-      );
+      setError("Päättymisajan täytyy olla alkamisajan jälkeen.");
       return;
     }
 
@@ -44,9 +42,7 @@ function CreateEvent({ onCreate, setPage }) {
 
       setPage("events");
     } catch (err) {
-      setError(
-        err?.message || "Tapahtuman luominen epäonnistui."
-      );
+      setError(err?.message || "Tapahtuman luominen epäonnistui.");
     } finally {
       setLoading(false);
     }
@@ -55,40 +51,23 @@ function CreateEvent({ onCreate, setPage }) {
   return (
     <main className="create-event-page">
       <div className="create-event-container">
-
-       
         <div className="create-event-heading">
-          <span className="create-event-tag">
-            ✨ UUSI TAPAHTUMA
-          </span>
-
           <h1>
             Luo uusi <span>tapahtuma</span>
           </h1>
-
-         
         </div>
 
-   
-        <form
-          className="event-form"
-          onSubmit={handleSubmit}
-        >
-
+        <form className="event-form" onSubmit={handleSubmit}>
           <div className="form-section-title">
-            <div className="form-icon">
-              📅
-            </div>
+            <div className="form-icon">📅</div>
 
             <div>
               <h2>Tapahtuman tiedot</h2>
-              <p>Täytä tapahtuman perustiedot.</p>
             </div>
           </div>
 
           {/* EVENT NAME AND CATEGORY */}
           <div className="form-row event-details-row">
-
             <div className="form-group">
               <label htmlFor="event-title">
                 Tapahtuman nimi
@@ -125,7 +104,6 @@ function CreateEvent({ onCreate, setPage }) {
                 <option>Vapaa-aika</option>
               </select>
             </div>
-
           </div>
 
           {/* DESCRIPTION */}
@@ -138,9 +116,7 @@ function CreateEvent({ onCreate, setPage }) {
             <textarea
               id="event-description"
               value={description}
-              onChange={(e) =>
-                setDescription(e.target.value)
-              }
+              onChange={(e) => setDescription(e.target.value)}
               placeholder="Kerro vähän lisää tapahtumastasi..."
               rows={3}
               required
@@ -163,86 +139,70 @@ function CreateEvent({ onCreate, setPage }) {
               required
             />
           </div>
+          <div className="event-date">
+            <div className="event-time-section">
+              <h3>
+                Aika
+                <span className="required"> *</span>
+              </h3>
 
-         
-          <div className="event-time-section">
+              <div className="event-time-grid">
+                {/* START */}
+                <div className="time-block">
+                  <label htmlFor="event-date">Alkaa</label>
 
-            <h3>
-              Aika
-              <span className="required"> *</span>
-            </h3>
+                  <div className="time-input-row">
+                    <input
+                      id="event-date"
+                      type="date"
+                      value={date}
+                      onChange={(e) => {
+                        const selectedDate = e.target.value;
+                        setDate(selectedDate);
 
-            <div className="event-time-grid">
+                        if (!endDate || endDate < selectedDate) {
+                          setEndDate(selectedDate);
+                        }
+                      }}
+                      required
+                    />
 
-              {/* START */}
-              <div className="time-block">
-                <label htmlFor="event-date">
-                  Alkaa
-                </label>
+                    <input
+                      id="event-time"
+                      aria-label="Alkamisaika"
+                      type="time"
+                      value={time}
+                      onChange={(e) => setTime(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
 
-                <div className="time-input-row">
-                  <input
-                    id="event-date"
-                    type="date"
-                    value={date}
-                    onChange={(e) => {
-                      const selectedDate = e.target.value;
-                      setDate(selectedDate);
+                {/* END */}
+                <div className="time-block">
+                  <label htmlFor="event-end-date">Päättyy</label>
 
-                      if (
-                        !endDate ||
-                        endDate < selectedDate
-                      ) {
-                        setEndDate(selectedDate);
-                      }
-                    }}
-                    required
-                  />
+                  <div className="time-input-row">
+                    <input
+                      id="event-end-date"
+                      type="date"
+                      min={date || undefined}
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      required
+                    />
 
-                  <input
-                    id="event-time"
-                    aria-label="Alkamisaika"
-                    type="time"
-                    value={time}
-                    onChange={(e) =>
-                      setTime(e.target.value)
-                    }
-                    required
-                  />
+                    <input
+                      id="event-end-time"
+                      aria-label="Päättymisaika"
+                      type="time"
+                      value={endTime}
+                      onChange={(e) => setEndTime(e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
               </div>
-
-              {/* END */}
-              <div className="time-block">
-                <label htmlFor="event-end-date">
-                  Päättyy
-                </label>
-
-                <div className="time-input-row">
-                  <input
-                    id="event-end-date"
-                    type="date"
-                    min={date || undefined}
-                    value={endDate}
-                    onChange={(e) =>
-                      setEndDate(e.target.value)
-                    }
-                    required
-                  />
-
-                  <input
-                    id="event-end-time"
-                    aria-label="Päättymisaika"
-                    type="time"
-                    value={endTime}
-                    onChange={(e) =>
-                      setEndTime(e.target.value)
-                    }
-                    required
-                  />
-                </div>
-              </div>
-
             </div>
           </div>
 
@@ -259,13 +219,8 @@ function CreateEvent({ onCreate, setPage }) {
             className="create-event-button"
             disabled={loading}
           >
-            {loading
-              ? "Tallennetaan..."
-              : "⊕ Luo tapahtuma"}
+            {loading ? "Tallennetaan..." : "⊕ Luo tapahtuma"}
           </button>
-
-          
-
         </form>
       </div>
     </main>

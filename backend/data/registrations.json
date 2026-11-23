@@ -84,21 +84,21 @@
     "registered_at": "2026-11-13T10:19:40.562Z"
   },
   {
-    "id": 23,
-    "user_id": 8,
-    "event_id": 13,
-    "registered_at": "2026-11-16T08:25:46.604Z"
-  },
-  {
-    "id": 24,
-    "user_id": 8,
-    "event_id": 21,
-    "registered_at": "2026-11-16T09:54:07.343Z"
-  },
-  {
     "id": 25,
     "user_id": 8,
     "event_id": 20,
     "registered_at": "2026-11-16T10:05:15.923Z"
+  },
+  {
+    "id": 26,
+    "user_id": 8,
+    "event_id": 18,
+    "registered_at": "2026-11-23T09:57:10.745Z"
+  },
+  {
+    "id": 27,
+    "user_id": 8,
+    "event_id": 21,
+    "registered_at": "2026-11-23T09:57:34.210Z"
   }
 ]
