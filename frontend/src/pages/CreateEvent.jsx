@@ -1,8 +1,15 @@
+
 import { useState } from "react";
+import { EVENT_CATEGORIES } from "../utils/eventCategories";
 
 function CreateEvent({ onCreate, setPage }) {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("Vapaa-aika");
+  const [subcategory, setSubcategory] = useState(
+    EVENT_CATEGORIES.find((item) => item.name === "Vapaa-aika")
+      ?.subcategories[0] || ""
+  );
+
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
 
@@ -14,12 +21,39 @@ function CreateEvent({ onCreate, setPage }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const selectedCategory = EVENT_CATEGORIES.find(
+    (item) => item.name === category
+  );
+
+  function handleCategoryChange(e) {
+    const newCategory = e.target.value;
+    setCategory(newCategory);
+
+    const newCategoryData = EVENT_CATEGORIES.find(
+      (item) => item.name === newCategory
+    );
+
+    setSubcategory(newCategoryData?.subcategories[0] || "");
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
 
     const start = new Date(`${date}T${time}`);
     const end = new Date(`${endDate}T${endTime}`);
+
+    if (
+      !date ||
+      !time ||
+      !endDate ||
+      !endTime ||
+      Number.isNaN(start.getTime()) ||
+      Number.isNaN(end.getTime())
+    ) {
+      setError("Täytä alkamis- ja päättymisaika.");
+      return;
+    }
 
     if (end <= start) {
       setError("Päättymisajan täytyy olla alkamisajan jälkeen.");
@@ -32,6 +66,7 @@ function CreateEvent({ onCreate, setPage }) {
       await onCreate({
         title,
         category,
+        subcategory,
         description,
         location,
         date,
@@ -60,7 +95,6 @@ function CreateEvent({ onCreate, setPage }) {
         <form className="event-form" onSubmit={handleSubmit}>
           <div className="form-section-title">
             <div className="form-icon">📅</div>
-
             <div>
               <h2>Tapahtuman tiedot</h2>
             </div>
@@ -93,17 +127,37 @@ function CreateEvent({ onCreate, setPage }) {
               <select
                 id="event-category"
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
+                onChange={handleCategoryChange}
                 required
               >
-                <option>Viihde</option>
-                <option>Koulutus</option>
-                <option>Teknologia</option>
-                <option>Urheilu</option>
-                <option>Ura</option>
-                <option>Vapaa-aika</option>
+                {EVENT_CATEGORIES.map((item) => (
+                  <option key={item.name} value={item.name}>
+                    {item.icon} {item.name}
+                  </option>
+                ))}
               </select>
             </div>
+          </div>
+
+          {/* SUBCATEGORY */}
+          <div className="form-group">
+            <label htmlFor="event-subcategory">
+              Alakategoria
+              <span className="required"> *</span>
+            </label>
+
+            <select
+              id="event-subcategory"
+              value={subcategory}
+              onChange={(e) => setSubcategory(e.target.value)}
+              required
+            >
+              {selectedCategory?.subcategories.map((sub) => (
+                <option key={sub} value={sub}>
+                  {sub}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* DESCRIPTION */}
@@ -139,6 +193,8 @@ function CreateEvent({ onCreate, setPage }) {
               required
             />
           </div>
+
+          {/* DATE AND TIME */}
           <div className="event-date">
             <div className="event-time-section">
               <h3>

@@ -82,5 +82,11 @@
     "user_id": 9,
     "event_id": 90,
     "registered_at": "2026-11-17T10:00:35.859Z"
+  },
+  {
+    "id": 26,
+    "user_id": 8,
+    "event_id": 21,
+    "registered_at": "2026-11-26T12:23:22.181Z"
   }
 ]

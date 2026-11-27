@@ -14,11 +14,14 @@ import {
 import { promisify } from "node:util";
 dotenv.config();
 
+
+
 const scrypt = promisify(scryptCallback);
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
   throw new Error("JWT_SECRET puuttuu .env-tiedostosta.");
 }
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -98,6 +101,40 @@ function nextId(items) {
   return (
     items.reduce((max, item) => Math.max(max, Number(item.id) || 0), 0) + 1
   );
+}
+
+// Tarkistaa, onko tapahtuma päättynyt
+function isEventPast(event) {
+  const eventDate = new Date(
+    `${String(event.date).slice(0, 10)}T${String(
+      event.time || "00:00"
+    ).slice(0, 5)}:00`
+  );
+
+  return !Number.isNaN(eventDate.getTime()) && eventDate <= new Date();
+}
+
+// Poistaa päättyneet tapahtumat, joihin kukaan ei ole ilmoittautunut
+async function deleteUnregisteredPastEvents() {
+  const events = await readData("events.json");
+  const registrations = await readData("registrations.json");
+
+  const remainingEvents = events.filter((event) => {
+    const isRegistered = registrations.some(
+      (registration) =>
+        Number(registration.event_id) === Number(event.id)
+    );
+
+    // Säilytä tapahtuma, jos joku on ilmoittautunut
+    if (isRegistered) return true;
+
+    // Säilytä myös tapahtumat, jotka eivät ole vielä päättyneet
+    return !isEventPast(event);
+  });
+
+  if (remainingEvents.length !== events.length) {
+    await writeData("events.json", remainingEvents);
+  }
 }
 // Rekisteröidy
 app.post("/api/auth/register", async (req, res) => {
@@ -286,29 +323,34 @@ app.get("/api/my-registrations", authenticateToken, async (req, res) => {
     });
   }
 });
-
-// Hae kaikki tapahtumat
+// Hae tulevat tapahtumat
 app.get("/api/events", async (req, res) => {
   try {
+    await deleteUnregisteredPastEvents();
+
     const events = await readData("events.json");
     const registrations = await readData("registrations.json");
 
     res.json(
       events
+        // Älä näytä päättyneitä tapahtumia Tapahtumat-sivulla
+        .filter((event) => !isEventPast(event))
         .map((event) => ({
           ...event,
           id: Number(event.id),
           participants: registrations.filter(
-            (r) => Number(r.event_id) === Number(event.id),
+            (r) => Number(r.event_id) === Number(event.id)
           ).length,
         }))
         .sort((a, b) =>
-          `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`),
-        ),
+          `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`)
+        )
     );
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Tapahtumien haku epäonnistui" });
+    res.status(500).json({
+      error: "Tapahtumien haku epäonnistui",
+    });
   }
 });
 // Salasanan turvallinen hajautus
@@ -651,6 +693,12 @@ app.post("/api/events/:id/register", authenticateToken, async (req, res) => {
       return res.status(404).json({ error: "Tapahtumaa ei löydy." });
     }
 
+    if (isEventPast(event)) {
+  return res.status(400).json({
+    error: "Tapahtuma on jo päättynyt.",
+  });
+}
+
     if (
       registrations.some(
         (r) => Number(r.user_id) === userId && Number(r.event_id) === eventId,
@@ -717,7 +765,7 @@ app.delete("/api/events/:id/register", authenticateToken, async (req, res) => {
     );
 
     await writeData("registrations.json", updatedRegistrations);
-
+    await deleteUnregisteredPastEvents();
     res.json({
       ok: true,
       message: "Ilmoittautuminen peruttu onnistuneesti!",
@@ -792,6 +840,16 @@ app.put("/api/users/:id", authenticateToken, async (req, res) => {
 
 async function startServer() {
   await ensureDataFiles();
+
+  // Tarkista päättyneet tapahtumat heti palvelimen käynnistyessä
+  await deleteUnregisteredPastEvents();
+
+  // Tarkista tapahtumat automaattisesti 30 sekunnin välein
+  setInterval(() => {
+    deleteUnregisteredPastEvents().catch((error) => {
+      console.error("Tapahtumien automaattinen poisto epäonnistui:", error);
+    });
+  }, 30000);
 
   app.listen(PORT, () => {
     console.log(`Palvelin käynnissä portissa ${PORT}`);

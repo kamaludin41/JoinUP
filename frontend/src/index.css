@@ -342,3 +342,36 @@ textarea {
     padding: 18px;
   }
 }
+.events-list-section {
+  margin-top: 35px;
+}
+
+.events-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.events-section-heading h2 {
+  font-size: 23px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.events-section-heading span {
+  background: #eeeaff;
+  color: #5b4bdb;
+  padding: 4px 11px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.events-section-empty {
+  color: #777;
+  background: #f8f8fb;
+  border-radius: 12px;
+  padding: 22px;
+  text-align: center;
+}

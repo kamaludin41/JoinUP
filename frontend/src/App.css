@@ -1516,3 +1516,85 @@ h3 {
     transform: translateY(0) scale(1);
   }
 }
+
+/* =====================================
+   JOINUP - SUCCESS NOTIFICATION
+   ===================================== */
+
+.event-toast {
+  position: fixed;
+  top: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+
+  width: max-content;
+  max-width: calc(100% - 30px);
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 16px 24px;
+  border-radius: 14px;
+
+  font-size: 15px;
+  font-weight: 650;
+
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
+
+  animation: toastAppear 0.3s ease;
+}
+
+.event-toast-success {
+  background: #ecfdf3;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.event-toast-error {
+  background: #fff1f2;
+  color: #be123c;
+  border: 1px solid #fecdd3;
+}
+
+.event-toast-icon {
+  width: 27px;
+  height: 27px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  background: #16a34a;
+  color: white;
+
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.event-toast-error .event-toast-icon {
+  background: #e11d48;
+}
+
+@keyframes toastAppear {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@media (max-width: 600px) {
+  .event-toast {
+    top: 80px;
+    padding: 13px 17px;
+    font-size: 13px;
+  }
+}
